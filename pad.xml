@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XML_DIZ_INFO>
+	<MASTER_PAD_VERSION_INFO>
+		<MASTER_PAD_VERSION>3.10</MASTER_PAD_VERSION>
+		<MASTER_PAD_INFO>Portable Application Description, or PAD for short, is a data set that is used by shareware authors to disseminate information to anyone interested in their software products. To find out more go to http://www.asp-shareware.org/pad</MASTER_PAD_INFO>
+	</MASTER_PAD_VERSION_INFO>
+	<Company_Info>
+		<Company_Name>Istvan Petres PFA</Company_Name>
+		<Address_1></Address_1>
+		<Address_2 />
+		<City_Town></City_Town>
+		<State_Province></State_Province>
+		<Zip_Postal_Code></Zip_Postal_Code>
+		<Country>Romania</Country>
+		<Company_WebSite_URL>http://jcore.net</Company_WebSite_URL>
+		<Contact_Info>
+			<Author_First_Name>Istvan</Author_First_Name>
+			<Author_Last_Name>Petres</Author_Last_Name>
+			<Author_Email>me@pijulius.com</Author_Email>
+			<Contact_First_Name>Istvan</Contact_First_Name>
+			<Contact_Last_Name>Petres</Contact_Last_Name>
+			<Contact_Email>support@jcore.net</Contact_Email>
+		</Contact_Info>
+		<Support_Info>
+			<Sales_Email>admin@jcore.net</Sales_Email>
+			<Support_Email>support@jcore.net</Support_Email>
+			<General_Email>admin@jcore.net</General_Email>
+			<Sales_Phone />
+			<Support_Phone />
+			<General_Phone />
+			<Fax_Phone />
+		</Support_Info>
+	</Company_Info>
+	<Program_Info>
+		<Program_Name>jCore - the Webmaster's Multisite CMS</Program_Name>
+		<Program_Version>0.6.1</Program_Version>
+		<Program_Release_Month>09</Program_Release_Month>
+		<Program_Release_Day>19</Program_Release_Day>
+		<Program_Release_Year>2010</Program_Release_Year>
+		<Program_Cost_Dollars />
+		<Program_Cost_Other_Code />
+		<Program_Cost_Other />
+		<Program_Type>Freeware</Program_Type>
+		<Program_Release_Status>New Release</Program_Release_Status>
+		<Program_Install_Support>Install and Uninstall</Program_Install_Support>
+		<Program_OS_Support>Not Applicable</Program_OS_Support>
+		<Program_Language>English</Program_Language>
+		<Program_Change_Info>http://jcore.net/news</Program_Change_Info>
+		<Program_Specific_Category>Internet</Program_Specific_Category>
+		<Program_Category_Class>Web Development::Other</Program_Category_Class>
+		<Program_Categories>Content Management System</Program_Categories>
+		<Program_System_Requirements>LAMP, WAMP or MAMP system</Program_System_Requirements>
+		<File_Info>
+			<File_Size_Bytes>11000000</File_Size_Bytes>
+			<File_Size_K>11000</File_Size_K>
+			<File_Size_MB>11</File_Size_MB>
+		</File_Info>
+		<Expire_Info>
+			<Has_Expire_Info>N</Has_Expire_Info>
+			<Expire_Count />
+			<Expire_Based_On />
+			<Expire_Other_Info />
+			<Expire_Month />
+			<Expire_Day />
+			<Expire_Year />
+		</Expire_Info>
+	</Program_Info>
+	<Program_Versions>
+		<Server>0.7.1</Server>
+		<Client>0.7.1</Client>
+		<Installer>0.6</Installer>
+	</Program_Versions>
+	<Program_Downloads>
+		<Server>93</Server>
+		<Client>94</Client>
+		<Installer>80</Installer>
+		<SQL>95</SQL>
+		<SQLArchive>
+			<v061>81</v061>
+			<v05>63</v05>
+			<v04>52</v04>
+			<v03>41</v03>
+			<v02>29</v02>
+			<v011>24</v011>
+		</SQLArchive>
+	</Program_Downloads>
+	<Program_Modules>
+		<Module>
+			<ID>contact</ID>
+			<Title>Contact Form</Title>
+			<Description>Let people contact you by completing a form</Description>
+		</Module>
+		<Module>
+			<ID>fileSharing</ID>
+			<Title>File Sharing</Title>
+			<Description>Share files in a directory like structure</Description>
+		</Module>
+		<Module>
+			<ID>members</ID>
+			<Title>Site Members</Title>
+			<Description>Member forms for My Account / Register / Login pages</Description>
+		</Module>
+		<Module>
+			<ID>photoGallery</ID>
+			<Title>Photo Gallery</Title>
+			<Description>Share pictures / photos in a directory like structure</Description>
+		</Module>
+		<Module>
+			<ID>poll</ID>
+			<Title>Polls</Title>
+			<Description>Quickly gather information on different subjects</Description>
+		</Module>
+		<Module>
+			<ID>search</ID>
+			<Title>Search Engine</Title>
+			<Description>Have your own search engine</Description>
+		</Module>
+		<Module>
+			<ID>shopping</ID>
+			<Title>Shopping Store</Title>
+			<Description>Sell products in a directory like structure</Description>
+		</Module>
+		<Module>
+			<ID>shoppingCart</ID>
+			<Title>Shopping Cart</Title>
+			<Description>Set Fees, Discounts, checkout Limits and let people place orders</Description>
+		</Module>
+		<Module>
+			<ID>shoppingOrders</ID>
+			<Title>Shopping Orders</Title>
+			<Description>Handle New / Processed orders and display members their orders history</Description>
+		</Module>
+		<Module>
+			<ID>videoGallery</ID>
+			<Title>Video Gallery</Title>
+			<Description>Share videos in a directory like structure</Description>
+		</Module>
+		<Module>
+			<ID>newsletter</ID>
+			<Title>Newsletters</Title>
+			<Description>Create lists, send out newsletters, let people subscribe and unsubscribe</Description>
+		</Module>
+	</Program_Modules>
+	<Program_Descriptions>
+		<English>
+			<Keywords>jcore, cms, content management system, php, mysql, lamp, web cms, multi site cms, php multisite cms, open source cms</Keywords>
+			<Char_Desc_45>jCore - the Webmasters Multisite CMS</Char_Desc_45>
+			<Char_Desc_80>jCore is the Multisite web Content Management System build for webmasters</Char_Desc_80>
+			<Char_Desc_250>jCore is the Multisite web Content Management System build especially for webmasters to easily maintenance multiple websites.</Char_Desc_250>
+			<Char_Desc_450>jCore is a Web Content Management System build especially for Webmasters (using the well known LAMP environment) who have to maintain multiple Websites for their clients and would like to keep the source codes up to date and easily fix bugs for all clients at once. It has two main systems: jCore Server, which holds all the libraries and modules you can build on, and jCore Client, which is the stripped version of the core system without any librar</Char_Desc_450>
+			<Char_Desc_2000>jCore is a Multi Site web Content Management System build especially for webmasters (using the well known LAMP environment) who have to maintain multiple websites for their clients and they would like to keep the source codes up to date and easily fix bugs for all clients at once.  jCore has two main systems, jCore Server - which holds all the libraries and modules you can build on, and jCore Client - which is the stripped version of the core system without any libraries as it uses the ones from the core.  Some of the core features include: - Dynamic Web 2.0 layout - Multi site support - Multilanguage support - Multiple Menu Block for unlimited menu items - WYSIWYG Content management system with attachments, pictures and comments system - Dynamic HTML Forms - Extensibility using Modules - Content Codes - RSS Feeds - Advertisement support - Member management - SEO Friendly links - Security system with Brute Force and Password Trading Protection - Custom 404 Error and Maintenance Pages  For further extensibility there is the Modules system with some of them already implemented like: - Photo Gallery - File Sharing - Contact - Local Search engine - Shopping</Char_Desc_2000>
+		</English>
+	</Program_Descriptions>
+	<Web_Info>
+		<Application_URLs>
+			<Application_Info_URL>http://jcore.net/about</Application_Info_URL>
+			<Application_Order_URL />
+			<Application_Screenshot_URL>http://jcore.net/sitefiles/image/screenshot.jpg</Application_Screenshot_URL>
+			<Application_Icon_URL>http://jcore.net/template/images/logo.png</Application_Icon_URL>
+			<Application_XML_File_URL>http://jcore.net/pad.xml</Application_XML_File_URL>
+		</Application_URLs>
+		<Download_URLs>
+			<Primary_Download_URL>http://jcore.net/downloads</Primary_Download_URL>
+			<Secondary_Download_URL />
+			<Additional_Download_URL_1 />
+			<Additional_Download_URL_2 />
+		</Download_URLs>
+	</Web_Info>
+	<Permissions>
+		<Distribution_Permissions>All jCore (Julius' Core) code is Copyright 2009 by Istvan Petres (aka P.I.Julius)
+
+This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+jCore includes works under other copyright notices and distributed according to the terms of the GNU General Public License or a compatible license.</Distribution_Permissions>
+		<EULA>You should have received a copy of the GNU General Public License along with the program when downloaded as the file LICENSE; if not, please see http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt</EULA>
+	</Permissions>
+</XML_DIZ_INFO>
