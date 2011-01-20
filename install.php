@@ -3928,6 +3928,8 @@ class installer {
 			'^\/template|' .
 			'^\/template\/images|' .
 			'^\/template\/modules|' .
+			'^\/template\/modules\/css|' .
+			'^\/template\/modules\/js|' .
 			'^\/template\/template\.css|' .
 			'^\/template\/template\.js' .
 			'/i';
@@ -4338,7 +4340,7 @@ class installer {
 			}
 			
 			if (preg_match($this->publicFiles, $directory['name']))
-				@chmod($this->installPath.$directory['name'], 0777);
+				@chmod($this->installPath.$directory['name'], 0757);
 		}
 		
 		echo
@@ -4383,7 +4385,7 @@ class installer {
 					@chmod($this->installPath.$tarfile['name'], 0644);
 					
 					if (preg_match($this->publicFiles, $tarfile['name']))
-						@chmod($this->installPath.$tarfile['name'], 0666);
+						@chmod($this->installPath.$tarfile['name'], 0646);
 				}
 			}
 		}
