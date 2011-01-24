@@ -4920,7 +4920,7 @@ class installer {
 			return false;
 		}
 		
-		if (preg_match('/[^a-zA-Z0-9\_\-]/', $this->sqlDB)) {
+		if (preg_match('/[^a-zA-Z0-9\.\_\-]/', $this->sqlDB)) {
 			tooltip::display(
 				__("Invalid SQL database specified! SQL database " .
 					"may consist of a-z, 0-9 and underscores only."),
@@ -4930,7 +4930,7 @@ class installer {
 			return false;
 		}
 				
-		if (preg_match('/[^a-zA-Z0-9_]/', $this->sqlPrefix)) {
+		if (preg_match('/[^a-zA-Z0-9\.\_\-]/', $this->sqlPrefix)) {
 			tooltip::display(
 				__("Invalid SQL table prefix specified! SQL table prefix " .
 					"may consist of a-z, 0-9 and underscores only."),
