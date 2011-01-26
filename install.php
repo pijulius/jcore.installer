@@ -52,7 +52,7 @@ if (isset($_GET['cookie']) && $_GET['cookie']) {
 }
 
 if (!ini_get('safe_mode'))
-	set_time_limit(0);
+	@set_time_limit(0);
 
 // This is a placeholder for future translations of the installer without
 // using gettext 
@@ -1093,7 +1093,7 @@ class files {
 		
 		while(!feof($fp)) {
 			if (!ini_get('safe_mode'))
-	        	set_time_limit(0);
+	        	@set_time_limit(0);
 	        
     	    print(fread($fp, 1024*8));
         	flush();
