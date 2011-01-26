@@ -51,7 +51,8 @@ if (isset($_GET['cookie']) && $_GET['cookie']) {
 	exit();
 }
 
-set_time_limit(0);
+if (!ini_get('safe_mode'))
+	set_time_limit(0);
 
 // This is a placeholder for future translations of the installer without
 // using gettext 
