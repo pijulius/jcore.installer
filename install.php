@@ -4652,46 +4652,6 @@ class installer {
 			url::flushDisplay();
 		}
 		
-		// Checking for GetText
-		echo
-			"<script type='text/javascript'>" .
-				"jQuery('#jcoreinstallerprocess').append('" .
-						__("Checking for PHP gettext...") .
-					"');" .
-			"</script>";
-						
-		url::flushDisplay();
-		
-		if (!extension_loaded('gettext')) {
-			echo
-				"<script type='text/javascript'>" .
-					"jQuery('#jcoreinstallerprocess').append('<b class=\"red\">" .
-							__("FAILED") .
-						"</b> (".__("not implemented").")<br />');" .
-				"</script>";
-			
-			url::flushDisplay();
-			
-			tooltip::display(
-				__("No build in gettext support found for PHP. Please " .
-					"<a href='http://php.net/manual/en/book.gettext.php' target='_blank'>" .
-					"re-build PHP with gettext support</a> on LAMP enviroments or " .
-					"activate the extension in WAMP enviroments using " .
-					"PHP -> PHP Extensions -> php_gettext."),
-				'error');
-		
-			return false;
-		}
-		
-		echo
-			"<script type='text/javascript'>" .
-				"jQuery('#jcoreinstallerprocess').append('<b>" .
-						__("OK") .
-					"</b> (".__("implemented").")<br />');" .
-			"</script>";
-		
-		url::flushDisplay();
-		
 		// Checking for GD Extension
 		echo
 			"<script type='text/javascript'>" .
