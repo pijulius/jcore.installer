@@ -1,8 +1,8 @@
 <?php
 
-define('INSTALLER_VERSION', '0.6');
+define('INSTALLER_VERSION', '0.7');
 define('JCORE_URL', 'http://jcore.net/');
-define('JCORE_VERSION', '0.7');
+define('JCORE_VERSION', '0.8');
 
 /***************************************************************************
  *            install.php
