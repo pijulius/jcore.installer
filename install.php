@@ -4496,6 +4496,49 @@ class installer {
 		return $value;
 	}
 	
+	function modRewrite() {
+		$url = parse_url($this->installURL);
+		@list($host, $port) = explode(':', $url['host']);
+		
+		if (!(int)$port)
+			$port = 80;
+		
+		$fp = @fsockopen(
+				$host, $port, $errno, $errstr);
+		
+		if (!$fp)
+			return false;
+		
+		stream_set_timeout($fp, 10);
+		
+		@fwrite($fp, 
+			"GET " .
+				(isset($url['path'])?
+					$url['path']:
+					null) .
+				"/a-not-existing-path-for-checking-mod-rewrite HTTP/1.1\r\n" .
+			"Host: ".$host."\r\n" .
+			"Content-type: text/html\r\n" .
+			"Connection: close\r\n\r\n");
+		
+		$header = null;
+		while($data = @fgets($fp)) {
+			$status = socket_get_status($fp);
+			
+			if ($status["timed_out"])
+				return false;
+			
+			if($data == "\r\n")
+				break;
+				
+			$header .= $data;
+		}
+		
+		fclose($fp);
+		
+		return preg_match('/HTTP.*? 200 OK/i', $header);
+	}
+	
 	function runSQL($sqlqueries, $title) {
 		echo
 			"<script type='text/javascript'>" .
@@ -5017,7 +5060,7 @@ class installer {
 			$this->error = 7;
 			return false;
 		}
-				
+		
 		if ($this->install == 'client') {
 			if (!is_dir($this->serverPath) || !is_file($this->serverPath.'config.inc.php')) {
 				tooltip::display(
@@ -5120,6 +5163,10 @@ class installer {
 				
 				$config = preg_replace(
 					'/(SQL_PREFIX.*?)\'\'/', '\1\''.$this->sqlPrefix.'\'', $config);
+				
+				if (!$this->modRewrite())
+					$config = preg_replace(
+						'/(SEO_FRIENDLY_LINKS.*?,).*?\)/', '\1 false)', $config);
 				
 				if ($fp = @fopen($this->installPath.'jcore.inc.php', 'w')) {
 					@fwrite($fp, $config);
@@ -5235,6 +5282,10 @@ class installer {
 			$config = preg_replace(
 				'/(SQL_PREFIX.*?)\'\'/', '\1\''.$this->sqlPrefix.'\'', $config);
 				
+			if (!$this->modRewrite())
+				$config = preg_replace(
+					'/(SEO_FRIENDLY_LINKS.*?,).*?\)/', '\1 false)', $config);
+			
 			if ($fp = @fopen($this->installPath.'config.inc.php', 'w')) {
 				@fwrite($fp, $config);
 				@fclose($fp);
