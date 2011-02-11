@@ -5696,22 +5696,6 @@ class installer {
 <meta name="keywords" content="jcore, cms, content management system, php, mysql, lamp, web cms, multi site cms, php multisite cms, open source cms" />
 <meta name="description" content="jCore is the Multisite web Content Management System build especially for webmasters to easily maintenance multiple websites." />
 <link rel="icon" type="image/png" href="<?php echo JCORE_URL; ?>template/images/favicon.png" />
-<script src='<?php echo JCORE_URL; ?>static.php?request=jquery&amp;installer-v<?php echo INSTALLER_VERSION; ?>' type='text/javascript'></script> 
-<script type="text/javascript">
-<!--
-	function toggleClientSettings(install) {
-		if (install.value == 'server' && jQuery('.fc-client-settings, .fc-client-settings a').is('.expanded')) {
-			jQuery('.fc-client-settings a').click();
-			return;
-		}
-		
-		if (install.value == 'client' && !jQuery('.fc-client-settings, .fc-client-settings a').is('.expanded')) { 
-			jQuery('.fc-client-settings a').click();
-			return;
-		}
-	}
--->
-</script>
 <style type='text/css'>
 /*
  * 
@@ -6970,6 +6954,22 @@ input.button:hover {
 	margin-left: 120px;
 }
 </style>
+<script src='<?php echo JCORE_URL; ?>static.php?request=jquery&amp;installer-v<?php echo INSTALLER_VERSION; ?>' type='text/javascript'></script> 
+<script type="text/javascript">
+<!--
+	function toggleClientSettings(install) {
+		if (install.value == 'server' && jQuery('.fc-client-settings, .fc-client-settings a').is('.expanded')) {
+			jQuery('.fc-client-settings a').click();
+			return;
+		}
+		
+		if (install.value == 'client' && !jQuery('.fc-client-settings, .fc-client-settings a').is('.expanded')) { 
+			jQuery('.fc-client-settings a').click();
+			return;
+		}
+	}
+-->
+</script>
 </head>
 <body>
 <div id='background'>
