@@ -10,30 +10,14 @@ define('JCORE_VERSION', '0.8');
  *  Jul 05, 07:00:00 2009
  *  Copyright  2009  Istvan Petres (aka P.I.Julius)
  *  me@pijulius.com
+ *  For licensing, see LICENSE or http://jcore.net/license
  * 
- * 
- * This is the installer system for the jCore - the Webmasters Multisite CMS
+ * This is the installer system for the jCore - the Webmaster's Multisite CMS
  * 
  * To install jCore server and or client just load this file in your browser
  * and follow the required steps.
  * 
- * All jCore (Julius' Core) code is Copyright 2009 by Istvan Petres
- * (aka P.I.Julius) <me@pijulius.com>
- * 
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation.
- * 
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program as the file LICENSE; if not, please see
- * http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
- * 
- */
+ ***************************************************************************/
 
 // This is to check if we want to set cookies and if yes we exit here.
 // This is used to set cookies even after content written to browser 
