@@ -1,6 +1,6 @@
 <?php
 
-define('INSTALLER_VERSION', '0.7');
+define('INSTALLER_VERSION', '0.8');
 define('JCORE_URL', 'http://jcore.net/');
 define('JCORE_VERSION', '0.8');
 
@@ -4729,7 +4729,7 @@ class installer {
 			tooltip::display(
 				__("Something went wrong while downloading the PAD file from jCore.net " .
 					"which is required to check for latest versions. Please " .
-					"<a href='install.php'>try again</a> and if this error " .
+					"<a href='".url::uri('ALL')."'>try again</a> and if this error " .
 					"keeps showing up please " .
 					"<a href='".JCORE_URL."contact' target='_blank'>" .
 					"contact jCore</a> with this error and your system setup."),
@@ -4742,7 +4742,7 @@ class installer {
 		
 		foreach($matches[1] as $key => $value) {
 			echo	
-				"<iframe src='install.php?cookie=".
+				"<iframe src='".url::uri('ALL')."?cookie=".
 					urlencode("[Versions][".$value."]")."&amp;cookievalue=".
 					urlencode($matches[2][$key])."' style='display: none;'>" .
 				"</iframe>" .
@@ -4758,7 +4758,7 @@ class installer {
 			tooltip::display(
 				__("Something went wrong while downloading the PAD file from jCore.net " .
 					"which is required to check for latest download urls. Please " .
-					"<a href='install.php'>try again</a> and if this error " .
+					"<a href='".url::uri('ALL')."'>try again</a> and if this error " .
 					"keeps showing up please " .
 					"<a href='".JCORE_URL."contact' target='_blank'>" .
 					"contact jCore</a> with this error and your system setup."),
@@ -4776,7 +4776,7 @@ class installer {
 				
 				foreach($archivematches[1] as $key => $value) {
 					echo	
-						"<iframe src='install.php?cookie=".
+						"<iframe src='".url::uri('ALL')."?cookie=".
 							urlencode("[Downloads][SQLArchive][".$value."]")."&amp;cookievalue=".
 							urlencode($archivematches[2][$key])."' style='display: none;'>" .
 						"</iframe>";
@@ -4788,7 +4788,7 @@ class installer {
 			}
 			
 			echo	
-				"<iframe src='install.php?cookie=".
+				"<iframe src='".url::uri('ALL')."?cookie=".
 					urlencode("[Downloads][".$value."]")."&amp;cookievalue=".
 					urlencode($matches[2][$key])."' style='display: none;'>" .
 				"</iframe>";
@@ -4812,7 +4812,7 @@ class installer {
 			tooltip::display(
 				__("Something went wrong while downloading the PAD file from jCore.net " .
 					"which is required to check for latest modules. Please " .
-					"<a href='install.php'>try again</a> and if this error " .
+					"<a href='".url::uri('ALL')."'>try again</a> and if this error " .
 					"keeps showing up please " .
 					"<a href='".JCORE_URL."contact' target='_blank'>" .
 					"contact jCore</a> with this error and your system setup."),
@@ -4828,7 +4828,7 @@ class installer {
 		
 		foreach($matches[1] as $key => $value) {
 			echo	
-				"<iframe src='install.php?cookie=".
+				"<iframe src='".url::uri('ALL')."?cookie=".
 					urlencode("[Modules][".$value."]")."&amp;cookievalue=".
 					urlencode($matches[2][$key])."' style='display: none;'>" .
 				"</iframe>";
@@ -4856,7 +4856,7 @@ class installer {
 			tooltip::display(
 				__("jCore Server download ID couldn't be found. This usually means " .
 					"that something whent wrong while the last check for latest " .
-					"versions. Please try to do a <a href='install.php?check=1'>" .
+					"versions. Please try to do a <a href='".url::uri('ALL')."?check=1'>" .
 					"recheck</a> and if you keep seeing this message please " .
 					"<a href='".JCORE_URL."contact' target='_blank'>" .
 					"contact jCore</a> with this error and your system setup."),
@@ -4870,7 +4870,7 @@ class installer {
 			tooltip::display(
 				__("jCore Client download ID couldn't be found. This usually means " .
 					"that something whent wrong while the last check for latest " .
-					"versions. Please try to do a <a href='install.php?check=1'>" .
+					"versions. Please try to do a <a href='".url::uri('ALL')."?check=1'>" .
 					"recheck</a> and if you keep seeing this message please " .
 					"<a href='".JCORE_URL."contact' target='_blank'>" .
 					"contact jCore</a> with this error and your system setup."),
@@ -4884,7 +4884,7 @@ class installer {
 			tooltip::display(
 				__("jCore SQL download ID couldn't be found. This usually means " .
 					"that something whent wrong while the last check for latest " .
-					"versions. Please try to do a <a href='install.php?check=1'>" .
+					"versions. Please try to do a <a href='".url::uri('ALL')."?check=1'>" .
 					"recheck</a> and if you keep seeing this message please " .
 					"<a href='".JCORE_URL."contact' target='_blank'>" .
 					"contact jCore</a> with this error and your system setup."),
@@ -4898,7 +4898,7 @@ class installer {
 			tooltip::display(
 				__("Available jCore modules couldn't be found. This usually means " .
 					"that something whent wrong while the last check for latest " .
-					"versions. Please try to do a <a href='install.php?check=1'>" .
+					"versions. Please try to do a <a href='".url::uri('ALL')."?check=1'>" .
 					"recheck</a> and if you keep seeing this message please " .
 					"<a href='".JCORE_URL."contact' target='_blank'>" .
 					"contact jCore</a> with this error and your system setup."),
@@ -5187,7 +5187,7 @@ class installer {
 				sprintf(
 					__("<b>jCore Client successfully installed!</b><br /> " .
 						"You can now access your new site at <a href='%s' target='_blank'>%s</a><br /><br /> " .
-						"Please remember to delete \"install.php\" and remove write access where not needed."),
+						"Please remember to delete \"".url::uri('ALL')."\" and remove write access where not needed."),
 					$this->installURL,
 					$this->installURL),
 				'success');
@@ -5322,7 +5322,7 @@ class installer {
 					"please use the following values:<br /> " .
 					"<li><span style='font-size: 90%%;'>jCore Server Path</span>: %s</li> " .
 					"<li><span style='font-size: 90%%;'>jCore Server URL</span>: %s</li><br /> " .
-					"Please remember to delete \"install.php\" and remove write access where not needed."),
+					"Please remember to delete \"".url::uri('ALL')."\" and remove write access where not needed."),
 				$this->installURL,
 				$this->installURL,
 				$this->installPath,
@@ -6961,7 +6961,7 @@ input.button:hover {
 		<div id='header-menu'>
 			<ul id='main-menu'>
 				<li class='menu'>
-					<a href='install.php?check=1'><span>Check for Updates</span></a> 
+					<a href='<?php echo url::uri('ALL'); ?>?check=1'><span>Check for Updates</span></a> 
 				</li>
 				<li class='menu'>
 					<a href='http://jcore.net/help/installer' target='_blank'><span>Get Help</span></a> 
