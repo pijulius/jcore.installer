@@ -4421,10 +4421,13 @@ class installer {
 				return false;
 			
 			$sqlfile = '';
-			if (@is_file($this->installPath.'jCore-'.$matches[1].'.sql')) {
+			if (@is_file($this->installPath.'jCore-'.$matches[1].'.sql'))
 				$sqlfile = 'jCore-'.$matches[1].'.sql';
+			elseif (@is_file($this->installPath.'jCore.sql'))
+				$sqlfile = 'jCore.sql';
+			
+			if ($sqlfile)
 				$this->cleanupFiles[$sqlfile] = $sqlfile;
-			}
 			
 			return array(
 				'Type' => 'Server',
@@ -4446,10 +4449,13 @@ class installer {
 			return false;
 		
 		$sqlfile = '';
-		if (@is_file($this->installPath.'jCore-'.$matches[1].'.sql')) {
+		if (@is_file($this->installPath.'jCore-'.$matches[1].'.sql'))
 			$sqlfile = 'jCore-'.$matches[1].'.sql';
+		elseif (@is_file($this->installPath.'jCore.sql'))
+			$sqlfile = 'jCore.sql';
+		
+		if ($sqlfile)
 			$this->cleanupFiles[$sqlfile] = $sqlfile;
-		}
 		
 		return array(
 			'Type' => 'Client',
