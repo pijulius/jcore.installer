@@ -4548,6 +4548,11 @@ class installer {
 				'\1`{\4}`',
 				$query);
 			
+			$query = preg_replace(
+				'/(RENAME TABLE [a-zA-Z0-9\_\- ]*?)`([a-zA-Z0-9\_\-]*?)`( TO )`([a-zA-Z0-9\_\-]*?)`/',
+				'\1`{\2}`\3`{\4}`',
+				$query);
+			
 			sql::run($query);
 			
 			if (sql::error()) {
