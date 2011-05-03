@@ -33,10 +33,10 @@
 	</Company_Info>
 	<Program_Info>
 		<Program_Name>jCore - the Webmaster's Multisite CMS</Program_Name>
-		<Program_Version>0.7.1</Program_Version>
-		<Program_Release_Month>09</Program_Release_Month>
-		<Program_Release_Day>19</Program_Release_Day>
-		<Program_Release_Year>2010</Program_Release_Year>
+		<Program_Version>0.8</Program_Version>
+		<Program_Release_Month>04</Program_Release_Month>
+		<Program_Release_Day>07</Program_Release_Day>
+		<Program_Release_Year>2011</Program_Release_Year>
 		<Program_Cost_Dollars />
 		<Program_Cost_Other_Code />
 		<Program_Cost_Other />
@@ -66,16 +66,17 @@
 		</Expire_Info>
 	</Program_Info>
 	<Program_Versions>
-		<Server>0.7.1</Server>
-		<Client>0.7.1</Client>
-		<Installer>0.6</Installer>
+		<Server>0.8</Server>
+		<Client>0.8</Client>
+		<Installer>0.8</Installer>
 	</Program_Versions>
 	<Program_Downloads>
-		<Server>93</Server>
-		<Client>94</Client>
+		<Server>111</Server>
+		<Client>113</Client>
 		<Installer>80</Installer>
-		<SQL>95</SQL>
+		<SQL>110</SQL>
 		<SQLArchive>
+			<v071>95</v071>
 			<v061>81</v061>
 			<v05>63</v05>
 			<v04>52</v04>
@@ -141,6 +142,24 @@
 			<Description>Create lists, send out newsletters, let people subscribe and unsubscribe</Description>
 		</Module>
 	</Program_Modules>
+	<Program_Updates>
+		<Update>
+			<Ver>0.8</Ver>
+			<Description>Added shopping orders summary page, Template Exporter, Posts at Glance, User Groups, Auto response for dynamic forms, Redirect with 301 Permanently moved for www/non-www domains, Ogone.com payment option and a lot more.</Description>
+			<Server>117</Server>
+			<Client>115</Client>
+			<SQL>114</SQL>
+			<URL>http://jcore.net/news/jcore-08-released</URL>
+		</Update>
+		<Update>
+			<Ver>0.7.1</Ver>
+			<Description>Added custom shopping options (like color, size ...), User avatars, New Template manager, Enhanced dynamic forms, HTTPS compatibility, Picasa and Youtube implementation, implemented Full Translation (0.7.1) and a lot more.</Description>
+			<Server>98</Server>
+			<Client>100</Client>
+			<SQL>97</SQL>
+			<URL>http://jcore.net/news/jcore-071-released</URL>
+		</Update>
+	</Program_Updates>
 	<Program_Descriptions>
 		<English>
 			<Keywords>jcore, cms, content management system, php, mysql, lamp, web cms, multi site cms, php multisite cms, open source cms</Keywords>
