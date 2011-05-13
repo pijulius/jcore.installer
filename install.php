@@ -2249,7 +2249,7 @@ class form {
 			
 			if ($element['Type'] == FORM_OPEN_FRAME_CONTAINER) {
 				echo
-				"<div class='fc" .
+				"<div tabindex='0' class='fc" .
 					($element['Name']?
 						" fc-".url::genPathFromString($element['Name']):
 						null) .
@@ -2329,7 +2329,7 @@ class form {
 				FORM_INPUT_TYPE_NUMBER)))
 			{
 				echo
-						"<div class='form-entry-title" .
+						"<label for='entry".$element['EntryID']."' class='form-entry-title" .
 							(isset($element['VerifyResult']) && $element['VerifyResult']?
 								" red":
 								null) .
@@ -2349,7 +2349,7 @@ class form {
 							(isset($element['AdditionalTitle']) && $element['AdditionalTitle']?
 								$element['AdditionalTitle']:
 								null).
-						"</div>" .
+						"</label>" .
 						"<div class='form-entry-content'>";
 					
 				if (isset($element['AdditionalPreText']) && $element['AdditionalPreText'])
@@ -3883,7 +3883,6 @@ class tar
 class installer {
 	var $error = 0;
 	var $publicFiles;
-	var $modules = array();
 	var $install;
 	var $installPath;
 	var $installOverwrite = false;
@@ -3891,7 +3890,6 @@ class installer {
 	var $installURL;
 	var $serverPath;
 	var $serverURL;
-	var $clientModules = array();
 	var $sqlHost;
 	var $sqlDB;
 	var $sqlUser;
@@ -3934,29 +3932,38 @@ class installer {
 			'dynamicformfieldvalues',
 			'dynamicforms',
 			'languages',
+			'massemails',
 			'menuitemmodules',
 			'menuitems',
 			'menus',
 			'modules',
+			'noteattachments',
+			'notecomments',
+			'notecommentsratings',
+			'notes',
+			'notificationemails',
+			'pageforms',
+			'pagemodules',
+			'pages',
 			'postattachments',
 			'postcomments',
 			'postcommentsratings',
 			'postpictures',
+			'postratings',
 			'posts',
 			'ptprotectionbans',
 			'rssfeeds',
 			'settings',
+			'templates',
+			'usergrouppermissions',
+			'usergroups',
 			'userlogins',
 			'userpermissions',
 			'userrequests',
-			'users',
-			'massemails');
+			'users');
 		
 		$this->serverPath = '/var/www/html/jcore/';
 		$this->serverURL = JCORE_URL;
-		
-		if (isset($_COOKIE['jCoreInstaller']['Modules']))
-			$this->modules = $_COOKIE['jCoreInstaller']['Modules'];
 		
 		if (isset($_COOKIE['jCoreInstaller']['Downloads']['Server']))
 			$this->downloadServerID = $_COOKIE['jCoreInstaller']['Downloads']['Server'];
@@ -4816,36 +4823,6 @@ class installer {
 			if (preg_match('/SQL/', $value))
 				$this->downloadSQLID = $matches[2][$key];
 		}
-		
-		preg_match('/<Program_Modules>(.*?)<\/Program_Modules>/is', $padcontent, $matches);
-		
-		if (!isset($matches[1])) {
-			tooltip::display(
-				__("Something went wrong while downloading the PAD file from jCore.net " .
-					"which is required to check for latest modules. Please " .
-					"<a href='".url::uri('ALL')."'>try again</a> and if this error " .
-					"keeps showing up please " .
-					"<a href='".JCORE_URL."contact' target='_blank'>" .
-					"contact jCore</a> with this error and your system setup."),
-				'error');
-		
-			return false;
-		}
-		
-		preg_match_all('/<ID>(.*?)<\/ID>.*?<Title>(.*?)<\/Title>/is', 
-			$matches[1], $matches);
-		
-		$this->modules = array();
-		
-		foreach($matches[1] as $key => $value) {
-			echo	
-				"<iframe src='".url::uri('ALL')."?cookie=".
-					urlencode("[Modules][".$value."]")."&amp;cookievalue=".
-					urlencode($matches[2][$key])."' style='display: none;'>" .
-				"</iframe>";
-				
-			$this->modules[$value] = $matches[2][$key];
-		}
 	}
 	
 	function install() {
@@ -4905,20 +4882,6 @@ class installer {
 			return false;
 		}
 				
-		if (!count($this->modules)) {
-			tooltip::display(
-				__("Available jCore modules couldn't be found. This usually means " .
-					"that something whent wrong while the last check for latest " .
-					"versions. Please try to do a <a href='".url::uri('ALL')."?check=1'>" .
-					"recheck</a> and if you keep seeing this message please " .
-					"<a href='".JCORE_URL."contact' target='_blank'>" .
-					"contact jCore</a> with this error and your system setup."),
-				'error');
-			
-			$this->error = 1;
-			return false;
-		}
-		
 		if (preg_match('/[^a-zA-Z0-9\.\_\-]/', $this->sqlDB)) {
 			tooltip::display(
 				__("Invalid SQL database specified! SQL database " .
@@ -5114,17 +5077,6 @@ class installer {
 				
 			if (!$this->runSQL($sqlqueries, 'jCore Client'))
 				return false;
-			
-			if (count($this->clientModules)) {	
-				foreach($this->clientModules as $module)
-					sql::run(
-						" INSERT INTO `" .
-							($this->sqlPrefix?
-								$this->sqlPrefix.'_modules':
-								'modules') .
-							"` SET" .
-						" Name = '".sql::escape($module)."'");
-			}
 			
 			echo
 				"<script type='text/javascript'>" .
@@ -5355,7 +5307,6 @@ class installer {
 		$this->installOverwriteSQL = $form->get('InstallOverwriteSQL');
 		$this->installPath = rtrim($form->get('InstallPath'), '/').'/';
 		$this->installURL = rtrim($form->get('InstallURL'), '/').'/';
-		$this->clientModules = $form->get('ClientModules');
 		$this->sqlHost = $form->get('SQLHost');
 		$this->sqlDB = $form->get('SQLDB');
 		$this->sqlUser = $form->get('SQLUser');
@@ -5549,13 +5500,6 @@ class installer {
 				__("(url to access jCore Server)"));
 			
 			$form->add(
-				'Modules to use',
-				'ClientModules',
-				FORM_INPUT_TYPE_CHECKBOX,
-				false);
-			$form->setValueType(FORM_VALUE_TYPE_ARRAY);
-			
-			$form->add(
 				null,
 				null,
 				FORM_CLOSE_FRAME_CONTAINER);
@@ -5597,20 +5541,6 @@ class installer {
 				"</li>" .
 				"<li>" .
 					"<b>".
-						__("SEO Friendly Links").
-					"</b>" .
-					"<br /><br />" .
-					__("jCore uses the " .
-						"<a href='http://httpd.apache.org/docs/1.3/mod/mod_rewrite.html' target='_blank'>" .
-						"mod_rewrite Apache module</a> wich enables the system " .
-						"to use SEO friendly links istead of the old index.php?id=xx " .
-						"method. If you don't have mod_rewrite activated for your " .
-						"site you can still use jCore just go to the \"jcore.inc.php\" " .
-						"and/or \"config.inc.php\" and change SEO_FRIENDLY_LINKS to " .
-						"\"false\". By default this option is turned on and set to \"true\".<br /><br />").
-				"</li>" .
-				"<li>" .
-					"<b>".
 						__("Website User Ownership (Apache, suPHP)").
 					"</b>" .
 					"<br /><br />" .
@@ -5619,7 +5549,7 @@ class installer {
 						"will be owned by apache:apache user/group. To change the ownership " .
 						"of the system in these cases please run (as root) the following " .
 						"command in your install path:<br /><br />" .
-						"<code>[root@localhost]# chown user:group -R ./</code>").
+						"<code>[root@localhost]# chown user:group -R /home/user/public_html/</code>").
 				"</li>" .
 			"</ul>",
 			null,
@@ -5641,12 +5571,6 @@ class installer {
 			FORM_INPUT_TYPE_RESET);
 		
 		$this->verify($form);
-		
-		foreach($this->modules as $moduleid => $modulename)
-			$form->addValue(
-				'ClientModules',
-				$moduleid,
-				$modulename);
 		
 		if ($this->error == 3 || $form->get('InstallOverwrite')) {
 			$form->edit(
@@ -5736,6 +5660,7 @@ form {
 
 label {
 	white-space: nowrap;
+	cursor: pointer;
 }
 
 hr {
@@ -5748,9 +5673,30 @@ hr {
 }
 
 h1, h2, h3 {
-	color: #000000;
+	color: #000;
 	font-weight: normal;
 	font-family: 'Nobile', arial, serif;
+}
+
+blockquote {
+	font-style: italic;
+	border: 1px dotted #e0e0e0;
+	background: url("http://icons.jcore.net/48/quote-top-black.png") 10px 10px no-repeat #fafafa;
+	padding: 5px 15px 5px 70px;
+	margin-left: 15px;
+	margin-right: 15px;
+}
+
+code {
+	display: inline-block;
+	border: 1px dotted #e0e0e0;
+	background: #fafafa;
+	padding: 10px 15px;
+	margin-left: 15px;
+	margin-right: 15px;
+	color: #000;
+	max-height: 200px;
+	overflow: auto;
 }
 
 input, select, textarea {
@@ -5762,7 +5708,7 @@ input, select, textarea {
 	border-radius: 3px;
 }
 
-input:focus, select:focus, textarea:focus {
+input:focus, select:focus, textarea:focus, .fc:focus {
 	outline: none;
 	border: 1px solid #338ead;
 	-webkit-box-shadow: 0px 0px 5px #338ead;
@@ -5902,6 +5848,9 @@ input:focus, select:focus, textarea:focus {
     border-top: 0;
     z-index: 101;
 	overflow: hidden;
+	-webkit-box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
+	-moz-box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
+	box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
 }
 
 .loading.rounded-corners {
@@ -5956,7 +5905,7 @@ input:focus, select:focus, textarea:focus {
 .tooltip.error {
 	background: #f2432e;
 	border-color: #d91b0b;
-	color: #ffffff;
+	color: #fff;
 }
 
 .tooltip.error > span {
@@ -6001,7 +5950,9 @@ input:focus, select:focus, textarea:focus {
 	text-shadow: 1px 1px 1px #fff;
 }
 
-.button:hover {
+.button:hover,
+.button:focus
+{
 	color: #000;
 	background: url("http://jcore.net/template/images/inputbg.jpg") repeat-x 0 0 #fff;
 }
@@ -6013,7 +5964,9 @@ input:focus, select:focus, textarea:focus {
 	text-shadow: 1px 1px 1px #338ead;
 }
 
-.button.submit:hover {
+.button.submit:hover,
+.button.submit:focus
+{
 	color: #fff;
 	background: url("http://jcore.net/template/images/buttonbluefocusedbg.jpg") repeat-x #50b1d4;
 }
@@ -6023,16 +5976,45 @@ input:focus, select:focus, textarea:focus {
 	padding: 7px 15px;
 	color: #919191;
 	text-decoration: none;
+	white-space: nowrap;
 }
 
-.button a:hover {
+.button a:hover,
+.button a:focus
+{
 	color: #000;
 }
 
 .button.submit a,
-.button.submit a:hover
+.button.submit a:hover,
+.button.submit a:focus
 {
 	color: #fff;
+}
+
+.button.fc > a {
+	margin-right: 20px;
+}
+
+.button.fc .fc-title,
+.button.fc .fc-title.colapsed
+{
+	float: right;
+	padding-left: 10px;
+	margin-right: 0;
+	background-image: url("http://icons.jcore.net/16/expanded-black.png");
+}
+
+.button.fc .fc-title:hover,
+.button.fc:focus > .fc-title
+{
+	background-image: url("http://icons.jcore.net/16/expanded-focused-black.png");
+}
+
+.button.fc ul {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
 }
 
 input.button {
@@ -6092,13 +6074,17 @@ input.button:hover {
 	background-image: url("http://icons.jcore.net/16/colapsed-black.png");
 }
 
-.fc-title:hover {
+.fc-title:hover,
+.fc:focus > .fc-title
+{
 	color: #000;
 	background-image: url("http://icons.jcore.net/16/colapsed-focused-black.png");
 }
 
 .fc.expanded > a:hover,
-.fc-title.expanded:hover
+.fc-title.expanded:hover,
+.fc.expanded:focus > a,
+.fc:focus > .fc-title.expanded
 {
 	background-image: url("http://icons.jcore.net/16/expanded-focused-black.png");
 }
@@ -6114,6 +6100,10 @@ input.button:hover {
 
 .fc-content .form-entry .form-entry-title {
 	width: 110px;
+}
+
+.fc-content .form-entry .form-entry-content {
+	margin-left: 120px;
 }
 
 
@@ -6152,7 +6142,7 @@ input.button:hover {
 }
 
 .form-entry {
-	clear: both;
+	clear: left;
 	padding-bottom: 10px;
 }
 
@@ -6165,6 +6155,15 @@ input.button:hover {
 	text-align: right;
 	width: 120px;
 	padding: 5px 10px 10px 0;
+	white-space: normal;
+}
+
+.form-entry.preview .form-entry-title {
+	padding-top: 0px;
+}
+
+.form-entry .form-entry-content {
+	margin-left: 130px;
 }
 
 .security-image {
@@ -6194,6 +6193,16 @@ input.button:hover {
 .reload-link {
 	padding: 0 0 5px 20px;
 	background: url("http://icons.jcore.net/16/arrow_refresh.png") no-repeat;
+}
+
+.select-link {
+	padding: 0 0 5px 20px;
+	background: url("http://icons.jcore.net/16/target.png") no-repeat;
+}
+
+.gdata-token-link {
+	padding: 0 0 5px 20px;
+	background: url("http://icons.jcore.net/16/application-certificate.png") no-repeat;
 }
 
 .show-calendar-input,
@@ -6242,52 +6251,41 @@ input.button:hover {
 	border: 1px solid #eee;
 }
 
-.list .list {
-	background: transparent;
+.list th {
+	padding: 7px;
+	font-size: 80%;
+	font-weight: normal;
+	text-align: left;
+	white-space: nowrap;
+	color: #fff;
+}
+
+.list tr {
+	background: url("http://jcore.net/template/images/fcbg.jpg") repeat-x 0 100% #fff;
+}
+
+.list thead tr {
+	background: url("http://jcore.net/template/images/buttonbluebg.jpg") repeat-x #50b1d4;
+}
+
+.list tbody > tr:hover,
+.list tbody > tr.hilight 
+{
+	background: #fff;
+}
+
+.list td {
+	border-top: 1px solid #eee;
+	padding: 3px 5px 3px 5px;
+	width: 1px;
 }
 
 .list .order-id-entry {
 	width: 30px;
 }
 
-.list tbody tr {
-	background: url("http://jcore.net/template/images/fcbg.jpg") repeat-x 0 100% #fff;
-}
-
-.list tbody tr:hover,
-.list tbody tr.hilight 
-{
-	background: #fff;
-}
-
-.list tbody td {
-	border-top: 1px solid #eee;
-	padding: 3px 5px 3px 5px;
-	width: 1px;
-}
-
-.list tbody td.auto-width {
-	width: 100%;
-}
-
-*+html .list tbody td.auto-width {
+.list td.auto-width {
 	width: auto;
-}
-
-.list thead tr {
-	padding: 7px 15px;
-	font-weight: bold;
-	background: url("http://jcore.net/template/images/buttonbluebg.jpg") repeat-x #50b1d4;
-}
-
-.list thead th {
-	padding: 7px;
-	font-size: 80%;
-	font-weight: normal;
-	text-align: left;
-	width: 1px;
-	white-space: nowrap;
-	color: #fff;
 }
 
 
@@ -6318,6 +6316,508 @@ input.button:hover {
 	text-align: right;
 	display: block;
 	padding: 2px 3px;
+	white-space: nowrap;
+}
+
+
+
+/*
+ * 
+ * Paging 
+ * 
+ */
+
+
+ 
+.paging {
+	clear: both;
+	margin: 10px 0;
+}
+
+.paging-text,
+.pagenumber
+{
+	display: inline;
+	margin-right: 2px;
+}
+
+.paging-text {
+	color: #a9a9a9;
+	font-size: 90%;
+	padding: 2px 7px 0 0;
+}
+
+.pagenumber a {
+	padding: 3px 7px;
+	color: #a9a9a9;
+	text-decoration: none;
+}
+
+.pagenumber a:hover, 
+.pagenumber.pagenumber-selected a 
+{
+	padding: 3px 9px;
+	background: url("http://jcore.net/template/images/buttonbluebg.jpg") repeat-x #50b1d4;
+	border: 1px solid #338ead;
+	color: #fff;
+	text-shadow: 1px 1px 1px #338ead;
+	font-weight: bold;
+}
+
+
+
+/*
+ * 
+ * Calendar 
+ * 
+ */
+
+
+
+.calendar-time {
+	text-align: center;
+	padding: 5px;
+}
+
+.calendar-prev {
+	float: left;
+}
+
+.calendar-next {
+	float: right;
+}
+
+.calendar-prev,
+.calendar-next
+{
+	text-decoration: none;
+	padding: 5px;
+	display: block;
+}
+
+.calendar thead th {
+	text-align: center;
+}
+
+.calendar tbody td {
+	vertical-align: top;
+}
+
+.calendar tbody td.comment {
+	-moz-opacity: 0.7;
+	-webkit-opacity: 0.7;
+	opacity: 0.7;
+	filter: alpha(opacity = 70);
+	zoom: 1;
+}
+
+.calendar tbody td.calendar-hour-time {
+	width: 1%;
+	white-space: nowrap;
+	text-align: right;
+}
+
+.calendar tbody td.calendar-timeline {
+	border-bottom: solid 1px #ff0000;
+}
+
+.month-calendar tbody td {
+	width: 12%;
+	text-align: right;
+}
+
+.month-calendar tbody td.calendar-today {
+	border: 1px solid #50b1d4;
+}
+
+.week-calendar tbody td.calendar-today {
+	border-left: 1px solid #50b1d4;
+	border-right: 1px solid #50b1d4;
+}
+
+.day-calendar tbody td.calendar-today {
+	border-left: 1px solid #50b1d4;
+}
+
+.week-calendar tbody td,
+.day-calendar tbody td
+{
+	width: 11%;
+	height: 20px;
+}
+
+
+
+/*
+ * 
+ * Posts 
+ * 
+ */
+
+
+
+.post {
+	margin-bottom: 20px;
+}
+
+.post-title {
+	margin: 0;
+}
+
+.post-title a {
+	color: #000;
+}
+
+.post-title a:hover {
+	color: #50b1d4;
+}
+
+.post-rating {
+	float: right;
+}
+
+.post-announcement-dates {
+	font-weight: normal;
+}
+
+.post-links a {
+	display: inline-block;
+	padding: 5px 0px 5px 20px;
+	background: url("http://icons.jcore.net/16/link.png") 0px 50% no-repeat;
+	margin-right: 10px;
+}
+
+.post-links .back {
+	background-image: url("http://icons.jcore.net/16/doc_page_previous.png");
+}
+
+.post-links .read-more {
+	background-image: url("http://icons.jcore.net/16/doc_text_image.png");
+}
+
+.post-links .comments {
+	background-image: url("http://icons.jcore.net/16/comment.png");
+}
+
+.post-links .edit {
+	background-image: url("http://icons.jcore.net/16/page_white_edit.png");
+}
+
+.post-pictures {
+	margin: 10px 0 0px 15px;
+	float: right;
+	clear: right;
+}
+
+.post.one .post-pictures {
+	margin: 10px 10px 0px 0;
+	float: left;
+}
+
+.post-pictures .picture-uploaded-on {
+	display: none;
+}
+
+.post.last .separator.bottom,
+.post.last .spacer.bottom
+{
+	display: none;
+}
+
+.post-keywords-cloud {
+	clear: both;
+	font-size: 27px;
+	margin-top: 1px;
+}
+
+
+
+/*
+ * 
+ * Comments for the contents and others 
+ * 
+ */
+
+
+
+.comment-entries {
+	padding-bottom: 10px;
+}
+
+.comment-entry {
+	padding-top: 5px;
+	margin: 5px 0px 10px 0px;
+	zoom: 1;
+}
+
+.comment-avatar {
+	float: left;
+	margin-right: 15px;
+}
+
+.sub-comment .gavatar {
+	width: 48px;
+}
+
+.comment-body {
+	border-bottom: 1px dotted #e0e0e0;
+	padding-bottom: 10px;
+}
+
+.comment-body blockquote {
+	padding-top: 15px;
+	padding-bottom: 15px;
+}
+
+.comment-rating {
+	padding-top: 5px;
+	display: inline-block;
+}
+
+.comment-functions {
+	float: right;
+	padding-top: 4px;
+	visibility: hidden;
+}
+
+.comment-entry:hover .comment-functions {
+	visibility: visible;
+}
+
+.comment-functions a {
+	display: block;
+	float: left;
+}
+
+.comment-delete {
+	margin-right: 10px;
+	padding: 5px 0px 0px 20px;
+	background: url("http://icons.jcore.net/16/cross.png") no-repeat 0px 50%;
+}
+
+.comment-edit {
+	margin-right: 10px;
+	padding: 5px 0px 0px 20px;
+	background: url("http://icons.jcore.net/16/pencil.png") no-repeat 0px 50%;
+}
+
+.comment-reply {
+	margin-right: 10px;
+	padding: 5px 0px 0px 20px;
+	background: url("http://icons.jcore.net/16/comment.png") no-repeat 0px 50%;
+}
+
+.comment-rating-up {
+	width: 16px;
+	height: 16px;
+	background: url("http://icons.jcore.net/16/vote_yes.png") no-repeat;
+	margin-right: 5px;
+}
+
+.comment-rating-down {
+	width: 16px;
+	height: 16px;
+	background: url("http://icons.jcore.net/16/vote_no.png") no-repeat;
+}
+
+.comment-details {
+	padding-top: 4px;
+}
+
+.sub-comment {
+	margin-left: 30px;
+}
+
+.comment-rating-1 {
+	color: #eee;
+}
+
+.comment-rating-2 {
+	color: #ddd;
+}
+
+.comment-rating-3 {
+	color: #ccc;
+}
+
+.comment-rating-4 {
+	color: #bbb;
+}
+
+.comment-rating-5 {
+	color: #aaa;
+}
+
+.comment-rating-6 {
+	color: #888;
+}
+
+.comment-rating-7 {
+	color: #666;
+}
+
+.comment-rating-8 {
+	color: #444;
+}
+
+.comment-rating-9 {
+	color: #222;
+}
+
+.comment-rating-10 {
+	color: #000;
+}
+
+
+
+/*
+ * 
+ * Pictures 
+ * 
+ */
+
+
+
+.picture {
+	text-align: center;
+	margin-bottom: 10px;
+}
+
+.picture a {
+	display: block;
+}
+
+.picture-title {
+	margin-top: 5px;
+	width: 160px;
+	display: inline-block;
+}
+
+.picture img {
+	border: 0;
+}
+
+
+
+/*
+ * 
+ * Videos 
+ * 
+ */
+
+
+
+.video.selected {
+	margin-bottom: 30px;
+}
+
+.video-preview {
+	text-align: center;
+	margin-bottom: 10px;
+	width: 160px;
+}
+
+.video-preview img {
+	height: 90px;
+	margin: 0 auto;
+	display: block;
+}
+
+.video-preview a {
+	text-align: left;
+	display: block;
+	width: 150px;
+	height: 90px;
+	overflow: hidden;
+	background: #000000;
+}
+
+.video-play-button {
+	position: absolute;
+	width: 62px;
+	height: 40px;
+	margin: 25px 0 0 43px;
+	background: url("http://icons.jcore.net/32/media-playback-start.png") 50% 50% no-repeat #000000;
+	-moz-opacity: 0.4;
+	-webkit-opacity: 0.4;
+	opacity: 0.4;
+	filter: alpha(opacity = 40);
+}
+
+.video-preview a:hover .video-play-button {
+	-moz-opacity: 0.7;
+	-webkit-opacity: 0.7;
+	opacity: 0.7;
+	filter: alpha(opacity = 70);
+}
+
+.video-title {
+	margin-top: 5px;
+}
+
+
+
+/*
+ * 
+ * Keywords 
+ * 
+ */
+
+
+
+.keywords {
+	padding: 10px 0px;
+}
+
+.keywords a {
+	text-decoration: none;
+	text-transform: lowercase;
+}
+
+.keywords a:hover {
+	text-decoration: underline;
+}
+
+
+
+/*
+ * 
+ * Attachments 
+ * 
+ */
+
+
+
+.attachments {
+	margin-bottom: 20px;
+	clear: both;
+}
+
+.attachments-title {
+	font-style: italic;
+	margin-bottom: 5px;
+}
+
+.attachment {
+	margin: 10px 0px 5px 0px;
+}
+
+.attachment-icon {
+	display: block;
+	float: left;
+	width: 32px;
+	height: 32px;
+	background: url("http://icons.jcore.net/32/emblem-downloads.png") no-repeat;
+}
+
+.attachment a {
+	font-size: 120%;
+	font-weight: bold;
+	padding-right: 5px;
+}
+
+.attachment-details {
+	padding-top: 1px;
 }
 
 
@@ -6398,25 +6898,25 @@ input.button:hover {
 	color: #000;
 }
 
-.ui-datepicker-calendar td.ui-datepicker-today {
+td.ui-datepicker-today {
 	border: 1px solid #dd7a64;
 	background: #ffeeee;
 }
 
-.ui-datepicker-calendar td.ui-datepicker-today a {
+td.ui-datepicker-today a {
 	color: #000;
 }
 
-.ui-datepicker-calendar td.ui-datepicker-current-day {
+td.ui-datepicker-current-day {
 	background: #5179bc;
 	border-color: #5179bc;
 }
 
-.ui-datepicker-calendar td.ui-datepicker-current-day a {
+td.ui-datepicker-current-day a {
 	color: #fff;
 }
 
-.ui-datepicker-calendar td.ui-datepicker-other-month {
+td.ui-datepicker-other-month {
 	border: 0px;
 }
 
@@ -6524,6 +7024,29 @@ input.button:hover {
 
 
 /*
+ * 
+ * Star rating 
+ * 
+ */
+
+
+
+.star-rating {
+	width: 80px;
+	height: 16px;
+}
+
+.star-rating-default {
+	background: url("http://icons.jcore.net/16/star_1a.png") 100% 0 repeat-x;
+}
+
+.star-rating-average {
+	background: url("http://icons.jcore.net/16/star_1.png") repeat-x;
+}
+
+
+
+/*
  *
  * Counter icon
  *
@@ -6559,6 +7082,154 @@ input.button:hover {
 
 
 /*
+ *
+ * Mime type icons
+ *
+ */
+
+
+
+.mime-type-directory {
+	background-image: url("http://icons.jcore.net/32/folder.png");
+}
+
+.mime-type-torrent {
+	background-image: url("http://icons.jcore.net/32/application-x-bittorrent.png");
+}
+
+.mime-type-perl {
+	background-image: url("http://icons.jcore.net/32/application-x-perl.png");
+}
+
+.mime-type-php {
+	background-image: url("http://icons.jcore.net/32/application-x-php.png");
+}
+
+.mime-type-ruby {
+	background-image: url("http://icons.jcore.net/32/application-x-ruby.png");
+}
+
+.mime-type-copyright {
+	background-image: url("http://icons.jcore.net/32/text-x-copying.png");
+}
+
+.mime-type-changelog {
+	background-image: url("http://icons.jcore.net/32/text-x-changelog.png");
+}
+
+.mime-type-makefile {
+	background-image: url("http://icons.jcore.net/32/text-x-makefile.png");
+}
+
+.mime-type-patch {
+	background-image: url("http://icons.jcore.net/32/text-x-patch.png");
+}
+
+.mime-type-python {
+	background-image: url("http://icons.jcore.net/32/text-x-python.png");
+}
+
+.mime-type-readme {
+	background-image: url("http://icons.jcore.net/32/text-x-readme.png");
+}
+
+.mime-type-source {
+	background-image: url("http://icons.jcore.net/32/text-x-source.png");
+}
+
+.mime-type-package {
+	background-image: url("http://icons.jcore.net/32/emblem-package.png");
+}
+
+.mime-type-office {
+	background-image: url("http://icons.jcore.net/32/emblem-office.png");
+}
+
+.mime-type-money {
+	background-image: url("http://icons.jcore.net/32/emblem-money.png");
+}
+
+.mime-type-multimedia {
+	background-image: url("http://icons.jcore.net/32/emblem-multimedia.png");
+}
+
+.mime-type-system {
+	background-image: url("http://icons.jcore.net/32/applications-system.png");
+}
+
+.mime-type-theme {
+	background-image: url("http://icons.jcore.net/32/application-x-theme.png");
+}
+
+.mime-type-db {
+	background-image: url("http://icons.jcore.net/32/Database.png");
+}
+
+.mime-type-important {
+	background-image: url("http://icons.jcore.net/32/emblem-important.png");
+}
+
+.mime-type-mail {
+	background-image: url("http://icons.jcore.net/32/emblem-mail.png");
+}
+
+.mime-type-personal {
+	background-image: url("http://icons.jcore.net/32/emblem-personal.png");
+}
+
+.mime-type-photo {
+	background-image: url("http://icons.jcore.net/32/emblem-photos.png");
+}
+
+.mime-type-plan {
+	background-image: url("http://icons.jcore.net/32/emblem-plan.png");
+}
+
+.mime-type-special {
+	background-image: url("http://icons.jcore.net/32/emblem-special.png");
+}
+
+.mime-type-readonly {
+	background-image: url("http://icons.jcore.net/32/emblem-readonly.png");
+}
+
+.mime-type-urgent {
+	background-image: url("http://icons.jcore.net/32/emblem-urgent.png");
+}
+
+.mime-type-web {
+	background-image: url("http://icons.jcore.net/32/emblem-web.png");
+}
+
+.mime-type-folder {
+	background-image: url("http://icons.jcore.net/32/folder.png");
+}
+
+.mime-type-font {
+	background-image: url("http://icons.jcore.net/32/font-x-generic.png");
+}
+
+.mime-type-text {
+	background-image: url("http://icons.jcore.net/32/text.png");
+}
+
+
+
+/*
+ * 
+ * Ads & Banners 
+ * 
+ */
+
+
+
+.ad {
+	text-align: center;
+}
+
+
+ 
+/*
  * 
  * Tipsy, a small tooltip 
  * 
@@ -6570,21 +7241,37 @@ input.button:hover {
 	padding: 5px;
 	font-size: 10px; 
 	position: absolute;
-	z-index: 100000;
+	z-index: 99;
 }
 
-.tipsy-inner { 
+.tipsy-outer { 
 	padding: 5px 8px 4px 8px; 
 	background-color: black; 
-	color: white; 
+	color: #fff; 
 	max-width: 200px; 
 	text-align: center;
-}
-
-.tipsy-inner {
+	word-wrap: break-word;
 	border-radius: 3px;
 	-moz-border-radius: 3px;
 	-webkit-border-radius: 3px;
+}
+
+.tipsy-close-button {
+	position: absolute;
+	width: 100%;
+	height: 1px;
+}
+
+.tipsy-close-button a {
+	display: block;
+	width: 16px;
+	height: 16px;
+	background: url("http://icons.jcore.net/16/cross.png") no-repeat;
+	margin: 0 40px 0 auto;
+}
+
+.tipsy-close-button span {
+	display: none;
 }
 
 .tipsy-arrow {
@@ -6592,6 +7279,20 @@ input.button:hover {
 	background: url('http://icons.jcore.net/custom/tipsy.gif') no-repeat top left;
 	width: 9px;
 	height: 5px;
+}
+
+.tipsy-big {
+	font-size: 12px;
+}
+
+.tipsy-big .tipsy-outer {
+	max-width: 640px;
+	padding: 15px;
+	text-align: left;
+	background: url('images/tipsybg.jpg') repeat-x #000;
+	-webkit-box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
+	-moz-box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
+	box-shadow: 0px 0px 15px rgba(0,0,0,0.3);
 }
 
 .tipsy-n .tipsy-arrow {
@@ -6645,90 +7346,287 @@ input.button:hover {
 	height: 9px;
 }
 
-
-
-/*
- * 
- * qTip Modifications so our content looks good here too 
- * 
- */
-
-
-
-.qtip-wrapper {
-	z-index: 1;
+.tipsy a:hover {
+	color: #fff;
 }
 
-.qtip-tip {
-	z-index: 2;
+.tipsy .comment {
+	color: #777;
 }
 
-.qtip-button {
-	display: block;
-	width: 16px;
-	height: 16px;
-	background: url("http://icons.jcore.net/16/cross.png") no-repeat;
+.tipsy .button {
+	margin-top: 10px;
 }
 
-.qtip-button span {
-	display: none;
-}
-
-.qtip .form {
+.tipsy .form {
 	margin: 0;
 }
 
-.qtip .form-title {
+.tipsy .form-title {
 	margin: 0;
 	border: 0;
 	padding: 5px;
 	background: transparent;
-	color: #000;
+	color: #fff;
 	text-shadow: none;
 }
 
-.qtip .form-content {
+.tipsy .form-content {
 	border: 0;
 	padding: 5px;
 	background: transparent;
-	color: #000;
+	color: #fff;
 }
 
-.qtip .form-entry .form-entry-title {
+.tipsy .form-entry {
+	padding-bottom: 0px;
+}
+
+.tipsy .form-entry-title {
 	width: auto;
 	float: none;
 	text-align: left;
 	padding-bottom: 3px;
 }
 
-.qtip .form-entry-scimagecode .comment {
+.tipsy .form-entry-content {
+	margin-left: 0;
+}
+
+.tipsy .form-entry-scimagecode .comment {
 	display: none;
 }
 
-.qtip .tooltip {
+.tipsy .tooltip {
 	margin: 0;
 }
 
-.qtip .paging-text { 
-	color: #A27D35;
+.tipsy .paging-text { 
+	color: #777;
 }
 
-.qtip .pagenumber a, 
-.qtip .pagenumber.pagenumber-selected a:hover 
-{
-	background: transparent;
+.tipsy .list {
 	border: 0;
-	color: #A27D35;
+	background: none;
 }
 
-.qtip .pagenumber a:hover, 
-.qtip .pagenumber.pagenumber-selected a 
+.tipsy .list tbody tr {
+	background: #111;
+}
+
+.tipsy .list tbody > tr:hover,
+.tipsy .list tbody > tr.hilight 
 {
-	background: #e7cE6D;
-	border: 0;
-	color: #000000;
+	background: #000;
 }
 
+.tipsy .list td {
+	border: 0;
+	background: none;
+	color: #fff;
+}
+
+
+
+/*
+ * 
+ * Lightbox for pictures preview
+ * 
+ */
+ 
+ 
+ 
+#jquery-overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 90;
+	width: 100%;
+	height: 100%;
+}
+
+#jquery-lightbox {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	z-index: 100;
+	text-align: center;
+	line-height: 0;
+}
+
+#jquery-lightbox a img { 
+	border: none; 
+}
+
+#lightbox-container-image-box {
+	position: relative;
+	background-color: #fff;
+	border: 10px solid #fff;
+	width: 250px;
+	height: 250px;
+	margin: 0 auto;
+}
+
+#lightbox-loading {
+	position: absolute;
+	top: 40%;
+	left: 0%;
+	height: 25%;
+	width: 100%;
+	text-align: center;
+	line-height: 0;
+	background: url("http://icons.jcore.net/32/ajax-loader2-black.gif") no-repeat 50% 50%;
+}
+
+#lightbox-nav {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	z-index: 10;
+}
+
+#lightbox-container-image-box > #lightbox-nav { 
+	left: 0; 
+}
+
+#lightbox-nav a { 
+	outline: none;
+}
+
+#lightbox-nav-btnPrev, 
+#lightbox-nav-btnNext 
+{
+	width: 49%;
+	height: 100%;
+	display: block;
+}
+
+#lightbox-nav-btnPrev { 
+	left: 0; 
+	float: left;
+}
+
+#lightbox-nav-btnNext { 
+	right: 0; 
+	float: right;
+}
+
+#lightbox-container-image-data-box {
+	font: 10px Verdana, Helvetica, sans-serif;
+	background-color: #fff;
+	margin: 0 auto;
+	line-height: 1.4em;
+	overflow: auto;
+	width: 100%;
+	padding: 0 10px 0;
+	overflow: hidden;
+}
+
+#lightbox-container-image-data {
+	padding: 0 64px 0 32px; 
+	color: #666; 
+}
+
+#lightbox-image-details { 
+	text-align: left;
+}
+	
+#lightbox-image-details-caption { 
+	font-weight: bold;
+	display: block; 
+}
+
+#lightbox-image-details-currentNumber {
+	display: block; 
+	padding-bottom: 1.0em;	
+}
+
+#lightbox-secNav-btnClose,
+#lightbox-secNav-btnDownload,
+#lightbox-secNav-btnPrev,
+#lightbox-secNav-btnNext,
+#lightbox-secNav-btnSlideshow
+{
+	overflow: hidden;
+	width: 32px;
+	height: 32px; 
+	margin-bottom: 9px;
+	float: right;
+}
+
+#lightbox-secNav-btnClose {
+	background: url("http://icons.jcore.net/32/emblem-unreadable.png") no-repeat;
+}
+
+#lightbox-secNav-btnDownload {
+	background: url("http://icons.jcore.net/32/emblem-downloads.png") no-repeat;
+}
+
+#lightbox-secNav-btnPrev {
+	background: url("http://icons.jcore.net/32/notification-audio-previous.png") no-repeat;
+}
+
+#lightbox-secNav-btnNext {
+	background: url("http://icons.jcore.net/32/notification-audio-next.png") no-repeat;
+}
+
+#lightbox-secNav-btnSlideshow {
+	float: left;
+	background: url("http://icons.jcore.net/32/media-playback-start.png") no-repeat;
+	margin-right: 10px; 
+}
+
+#lightbox-secNav-btnSlideshow.pause {
+	background-image: url("http://icons.jcore.net/32/media-playback-pause.png");
+}
+
+#lightbox-nav-btnPrev { 
+	background: url("http://icons.jcore.net/16/empty.gif") left 15% no-repeat;
+}
+
+#lightbox-nav-btnNext { 
+	background: url("http://icons.jcore.net/16/empty.gif") right 15% no-repeat;
+}
+
+#lightbox-nav-btnPrev:hover { 
+	background: url("http://icons.jcore.net/32/prevlabel.gif") left 15% no-repeat;
+}
+
+#lightbox-nav-btnNext:hover { 
+	background: url("http://icons.jcore.net/32/nextlabel.gif") right 15% no-repeat;
+}
+
+
+
+/*
+ *
+ * Login / Quick Login and Request Password forms
+ *
+ */
+
+
+
+#requestanewpasswordform .text-entry {
+	width: 300px;
+}
+ 
+#memberloginform #entrymember {
+	width: 250px;
+}
+ 
+#memberloginform #entrypassword {
+	width: 200px;
+}
+ 
+#quickloginform #entrymember,
+#quickloginform #entrypassword 
+{
+	width: 150px;
+}
+ 
 
 
 /*
@@ -6811,7 +7709,6 @@ input.button:hover {
 #content-bar {
 	padding: 20px 0px 1px 0px;
 	margin: 0 40px;
-	overflow: hidden;
 }
 
 #footer {
@@ -6943,10 +7840,6 @@ input.button:hover {
 
 .form-entry-content label {
 	display: block;
-}
-
-.form-entry-clientmodules .form-entry-content {
-	margin-left: 120px;
 }
 </style>
 <script src='<?php echo JCORE_URL; ?>static.php?request=jquery&amp;installer-v<?php echo INSTALLER_VERSION; ?>' type='text/javascript'></script> 

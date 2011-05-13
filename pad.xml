@@ -85,63 +85,6 @@
 			<v011>24</v011>
 		</SQLArchive>
 	</Program_Downloads>
-	<Program_Modules>
-		<Module>
-			<ID>contact</ID>
-			<Title>Contact Form</Title>
-			<Description>Let people contact you by completing a form</Description>
-		</Module>
-		<Module>
-			<ID>fileSharing</ID>
-			<Title>File Sharing</Title>
-			<Description>Share files in a directory like structure</Description>
-		</Module>
-		<Module>
-			<ID>members</ID>
-			<Title>Site Members</Title>
-			<Description>Member forms for My Account / Register / Login pages</Description>
-		</Module>
-		<Module>
-			<ID>photoGallery</ID>
-			<Title>Photo Gallery</Title>
-			<Description>Share pictures / photos in a directory like structure</Description>
-		</Module>
-		<Module>
-			<ID>poll</ID>
-			<Title>Polls</Title>
-			<Description>Quickly gather information on different subjects</Description>
-		</Module>
-		<Module>
-			<ID>search</ID>
-			<Title>Search Engine</Title>
-			<Description>Have your own search engine</Description>
-		</Module>
-		<Module>
-			<ID>shopping</ID>
-			<Title>Shopping Store</Title>
-			<Description>Sell products in a directory like structure</Description>
-		</Module>
-		<Module>
-			<ID>shoppingCart</ID>
-			<Title>Shopping Cart</Title>
-			<Description>Set Fees, Discounts, checkout Limits and let people place orders</Description>
-		</Module>
-		<Module>
-			<ID>shoppingOrders</ID>
-			<Title>Shopping Orders</Title>
-			<Description>Handle New / Processed orders and display members their orders history</Description>
-		</Module>
-		<Module>
-			<ID>videoGallery</ID>
-			<Title>Video Gallery</Title>
-			<Description>Share videos in a directory like structure</Description>
-		</Module>
-		<Module>
-			<ID>newsletter</ID>
-			<Title>Newsletters</Title>
-			<Description>Create lists, send out newsletters, let people subscribe and unsubscribe</Description>
-		</Module>
-	</Program_Modules>
 	<Program_Updates>
 		<Update>
 			<Ver>0.8</Ver>
