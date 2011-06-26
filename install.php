@@ -1,8 +1,8 @@
 <?php
 
-define('INSTALLER_VERSION', '0.8');
+define('INSTALLER_VERSION', '0.9');
 define('JCORE_URL', 'http://jcore.net/');
-define('JCORE_VERSION', '0.8');
+define('JCORE_VERSION', '0.9');
 
 /***************************************************************************
  *            install.php
@@ -4551,12 +4551,17 @@ class installer {
 		
 		foreach($queries as $query) {
 			$query = preg_replace(
-				'/(((DROP|CREATE|ALTER) TABLE|INSERT INTO|UPDATE|DELETE) [a-zA-Z0-9\_\- ]*?)`([a-zA-Z0-9\_\-]*?)`/',
+				'/(((DROP|CREATE|ALTER) TABLE|INSERT INTO|UPDATE|DELETE) [a-zA-Z0-9\_\- ]*?)`([a-zA-Z0-9\_\-]*?)`/s',
 				'\1`{\4}`',
 				$query);
 			
 			$query = preg_replace(
-				'/(RENAME TABLE [a-zA-Z0-9\_\- ]*?)`([a-zA-Z0-9\_\-]*?)`( TO )`([a-zA-Z0-9\_\-]*?)`/',
+				'/(SELECT.*?FROM.*?)`([a-zA-Z0-9\_\-]*?)`/s',
+				'\1`{\2}`',
+				$query);
+			
+			$query = preg_replace(
+				'/(RENAME TABLE [a-zA-Z0-9\_\- ]*?)`([a-zA-Z0-9\_\-]*?)`( TO )`([a-zA-Z0-9\_\-]*?)`/s',
 				'\1`{\2}`\3`{\4}`',
 				$query);
 			
