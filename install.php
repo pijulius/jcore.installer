@@ -4551,17 +4551,12 @@ class installer {
 		
 		foreach($queries as $query) {
 			$query = preg_replace(
-				'/(((DROP|CREATE|ALTER) TABLE|INSERT INTO|UPDATE|DELETE) [a-zA-Z0-9\_\- ]*?)`([a-zA-Z0-9\_\-]*?)`/s',
+				'/(((DROP|CREATE|ALTER) TABLE|INSERT INTO|UPDATE|DELETE|SELECT[ \r\n\t]+.*?[ \r\n\t]+FROM) [a-zA-Z0-9\_\- ]*?)`([a-zA-Z0-9\_\-]*?)`/s',
 				'\1`{\4}`',
 				$query);
 			
 			$query = preg_replace(
-				'/(SELECT.*?FROM.*?)`([a-zA-Z0-9\_\-]*?)`/s',
-				'\1`{\2}`',
-				$query);
-			
-			$query = preg_replace(
-				'/(RENAME TABLE [a-zA-Z0-9\_\- ]*?)`([a-zA-Z0-9\_\-]*?)`( TO )`([a-zA-Z0-9\_\-]*?)`/s',
+				'/(RENAME TABLE [a-zA-Z0-9\_\- ]*?)`([a-zA-Z0-9\_\-]*?)`([ \r\n\t]+TO[ \r\n\t]+)`([a-zA-Z0-9\_\-]*?)`/s',
 				'\1`{\2}`\3`{\4}`',
 				$query);
 			
