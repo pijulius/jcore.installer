@@ -88,6 +88,14 @@
 	</Program_Downloads>
 	<Program_Updates>
 		<Update>
+			<Ver>0.9</Ver>
+			<Description>Added new Module and Update manager, multiple layouts support for Templates, separated Menu items and Pages, availability to limit Pages/Blocks to user groups, possibility to add Posts to blocks without having to assign them to pages, CSV export for dynamic form's data, IPv6 compatibility, Mobile browser detection for blocks, Coupon codes for shopping cart and a lot more.</Description>
+			<Server>128</Server>
+			<Client>126</Client>
+			<SQL>127</SQL>
+			<URL>http://jcore.net/news/jcore-09-released</URL>
+		</Update>
+		<Update>
 			<Ver>0.8</Ver>
 			<Description>Added shopping orders summary page, Template Exporter, Posts at Glance, User Groups, Auto response for dynamic forms, Redirect with 301 Permanently moved for www/non-www domains, Ogone.com payment option and a lot more.</Description>
 			<Server>117</Server>
