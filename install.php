@@ -7681,14 +7681,14 @@ td.ui-datepicker-other-month {
 
 .logo {
 	float: left;
-	margin: 50px 0 40px 10px;
+	margin: 50px 0 20px 10px;
 }
 
 .logo a {
 	display: block;
 	width: 145px;
-	height: 43px;
-	background: url("http://jcore.net/template/images/logo.png") -8px -8px no-repeat;
+	height: 63px;
+	background: url("http://jcore.net/template/images/logo.png") -8px -7px no-repeat;
 	float: left;
 }
 
