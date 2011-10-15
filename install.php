@@ -4107,6 +4107,19 @@ class installer {
 		
 		$fl = null;
 		
+		if ($filename && !@file_exists($this->installPath.$filename)) {
+			preg_match('/^(.*)([0-9]+\.[0-9]+)(.*?)$/', $filename, $matches);
+			
+			if (isset($matches[1]) && isset($matches[2]) && isset($matches[3])) {
+				foreach(scandir($this->installPath) as $dfile) {
+					if (preg_match('/'.preg_quote($matches[1]).'[0-9]+\.[0-9]+'.preg_quote($matches[3]).'/', $dfile)) {
+						$filename = $dfile;
+						break;
+					}
+				}
+			}
+		}
+		
 		if ($filename && @file_exists($this->installPath.$filename)) {
 			echo
 				"<script type='text/javascript'>" .
