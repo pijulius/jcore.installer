@@ -7930,7 +7930,7 @@ td.ui-datepicker-other-month {
 <div id='footer'>
 	<div class='footercontent'> 
 		<div class='copyright'>
-			Copyright &copy; 2009 by Istvan Petres<br /> 
+			Copyright &copy; <?php echo date('Y'); ?> by Istvan Petres<br /> 
 			All Rights Reserved
 		</div>
 	</div>
