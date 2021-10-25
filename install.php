@@ -11,39 +11,141 @@ define('JCORE_VERSION', '1.0');
  *  Copyright  2009  Istvan Petres (aka P.I.Julius)
  *  me@pijulius.com
  *  For licensing, see LICENSE or http://jcore.net/license
- * 
+ *
  * This is the installer system for the jCore - the Webmaster's Multisite CMS
- * 
+ *
  * To install jCore server and or client just load this file in your browser
  * and follow the required steps.
- * 
+ *
  ***************************************************************************/
 
 // This is to check if we want to set cookies and if yes we exit here.
-// This is used to set cookies even after content written to browser 
-// by using hidden iframes 
+// This is used to set cookies even after content written to browser
+// by using hidden iframes
 if (isset($_GET['cookie']) && $_GET['cookie']) {
 	$cookie = $_GET['cookie'];
 	$cookievalue = null;
-	
+
 	if (isset($_GET['cookievalue']))
 		$cookievalue = $_GET['cookievalue'];
-	
-	setcookie("jCoreInstaller".$cookie, 
+
+	setcookie("jCoreInstaller".$cookie,
 		$cookievalue, time()+3600*24);
-				
+
 	exit();
 }
 
 if (!ini_get('safe_mode'))
 	@set_time_limit(0);
 
+if (!function_exists('mysql_connect')) {
+	function mysql_connect($host, $user, $pass) {
+		return new mysqli($host, $user, $pass);
+	}
+
+	function mysql_select_db($db, $link) {
+		if (!$link)
+			return;
+
+		return $link->select_db($db);
+	}
+
+	function mysql_query($query, $link) {
+		if (!$link)
+			return;
+
+		return $link->query($query);
+	}
+
+	function mysql_insert_id($link) {
+		if (!$link)
+			return;
+
+		return $link->insert_id;
+	}
+
+	function mysql_error($link) {
+		if (!empty($link->connect_error))
+			return $link->connect_error;
+	}
+
+	function mysql_fetch_array($query) {
+		if (!$query)
+			return null;
+
+		return $query->fetch_assoc();
+	}
+
+	function mysql_num_rows($link) {
+		if (!$link)
+			return;
+
+		return $link->num_rows;
+	}
+
+	function mysql_data_seek($link, $row) {
+		if (!$link)
+			return;
+
+		$link->data_seek($row);
+	}
+
+	function mysql_close($link) {
+		if (!$link)
+			return;
+
+		return $link->close();
+	}
+
+	function mysql_real_escape_string($string, $link) {
+		if (!$link)
+			return;
+
+		return $link->real_escape_string($string);
+	}
+
+	function mysql_affected_rows($link) {
+		if (!$link)
+			return;
+
+		return $link->affected_rows;
+	}
+
+	function mysql_get_client_info() {
+		return mysqli_get_client_info();
+	}
+}
+
+if (!function_exists('ereg')) {
+	function ereg($pattern, $string) {
+		return preg_match('/'.$pattern.'/', $string);
+	}
+}
+
+if (!function_exists('eregi')) {
+	function eregi($pattern, $string) {
+		return preg_match('/'.$pattern.'/i', $string);
+	}
+}
+
+if (!function_exists('split')) {
+	function split($pattern, $string) {
+		return preg_split('/'.$pattern.'/', $string);
+	}
+}
+
+if (!function_exists('spliti')) {
+	function spliti($pattern, $string) {
+		return preg_split('/'.$pattern.'/i', $string);
+	}
+}
+
 // This is a placeholder for future translations of the installer without
-// using gettext 
+// using gettext
 function __($text) {
 	return $text;
 }
- 
+
 /***************************************************************************
  *            url.class.php
  *
@@ -51,7 +153,7 @@ function __($text) {
  *  Copyright  2009  Istvan Petres (aka P.I.Julius)
  *  me@pijulius.com
  ****************************************************************************/
- 
+
 if (isset($_GET['path']))
 	url::$pagePath = strip_tags($_GET['path']);
 
@@ -60,146 +162,146 @@ class url {
 	static $pageDescription = META_DESCRIPTION;
 	static $pageKeywords = META_KEYWORDS;
 	static $pagePath = '';
-	
+
 	static function addPageTitle($title) {
 		if (!$title)
 			return false;
-		
+
 		url::$pageTitle =
-			strip_tags($title) . 
+			strip_tags($title) .
 			(url::$pageTitle?
 				' - '.url::$pageTitle:
 				null);
-		
+
 		return true;
 	}
-	
+
 	static function addPageDescription($description) {
 		if (!$description)
 			return false;
-		
-		url::$pageDescription = 
+
+		url::$pageDescription =
 			strip_tags($description) .
 			(url::$pageDescription?
 				' '.url::$pageDescription:
 				null);
-		
+
 		return true;
 	}
-	
+
 	static function addPageKeywords($keywords) {
 		if (!$keywords)
 			return false;
-		
-		url::$pageKeywords = 
+
+		url::$pageKeywords =
 			strip_tags($keywords) .
 			(url::$pageKeywords?
 				', '.url::$pageKeywords:
 				null);
-		
+
 		return true;
 	}
-	
+
 	static function setPageTitle($title) {
 		url::$pageTitle = strip_tags($title);
-		
+
 	}
-	
+
 	static function setPageDescription($description) {
 		url::$pageDescription = strip_tags($description);
 	}
-	
+
 	static function setPageKeywords($keywords) {
 		url::$pageKeywords = strip_tags($keywords);
 	}
-	
+
 	static function getPageTitle() {
 		return url::$pageTitle;
 	}
-	
+
 	static function getPageDescription() {
 		return url::$pageDescription;
 	}
-	
+
 	static function getPageKeywords() {
 		return url::$pageKeywords;
 	}
-	
+
 	static function displayPageTitle($level = 0) {
 		$title = url::getPageTitle();
-		
+
 		if ($level) {
 			$titles = explode(' - ', $title);
-			
+
 			for($i = 0; $i < $level; $i++) {
 				if ($i > 0) echo ' - ';
 				echo $titles[$i];
 			}
-			
+
 			return;
 		}
-		
+
 		echo $title;
 	}
-	
+
 	static function displayPageDescription() {
 		echo htmlspecialchars(url::getPageDescription(), ENT_QUOTES);
 	}
-	
+
 	static function displayPageKeywords() {
 		echo htmlspecialchars(url::getPageKeywords(), ENT_QUOTES);
 	}
-	
+
 	static function arg($argument) {
 		if (!isset($_GET[$argument]))
 			return null;
-		
+
 		return $argument.'='.$_GET[$argument];
 	}
-	
+
 	static function args($notincludeargs = null) {
 		$uri = str_replace('//', '/', $_SERVER['REQUEST_URI']);
 		$expuri = explode('?', $uri);
-		
+
 		if (!isset($expuri[1]))
 			return null;
-		
+
 		if (!$notincludeargs)
 			return str_replace('&', '&amp;', $expuri[1]);
-		
+
 		$args = explode('&', $expuri[1]);
 		$notincludeargs = explode(",", str_replace(" ", "", $notincludeargs));
-		
+
 		$rargs = null;
 		foreach($args as $arg) {
 			$expargs = explode('=', $arg);
-			
+
 			if (in_array($arg, $notincludeargs) ||
 				in_array($expargs[0], $notincludeargs))
 				continue;
-			
+
 			$rargs .= $arg."&amp;";
 		}
-		
+
 		return substr($rargs, 0, strlen($rargs)-5);
 	}
-	
+
 	static function delargs($args = null) {
 		url::setURI(url::uri($args));
 	}
-	
+
 	static function referer($striprequests = false) {
 		if (!isset($_SERVER['HTTP_REFERER']))
 			return null;
-		
-		if ($striprequests) 
-			return 
-				preg_replace('/((\?)|&)request=.*/i', '\\1', 
+
+		if ($striprequests)
+			return
+				preg_replace('/((\?)|&)request=.*/i', '\\1',
 					$_SERVER['HTTP_REFERER']);
-		
+
 		return $_SERVER['HTTP_REFERER'];
 	}
-	
+
 	static function setURI($uri) {
 		$_SERVER['REQUEST_URI'] = str_replace('&amp;', '&', $uri);
 	}
@@ -207,134 +309,136 @@ class url {
 	static function uri($notincludeargs = null, $inverse = false) {
 		$uri = str_replace('//', '/', $_SERVER['REQUEST_URI']);
 		$expuri = explode('?', $uri);
-		
+
 		if (!$notincludeargs)
 			return str_replace('&', '&amp;', $uri).
 				(!isset($expuri[1])?
 					'?':
 					null);
-		
+
 		if ($notincludeargs == 'ALL')
 			return $expuri[0];
-		
+
 		if (!isset($expuri[1]))
 			return $expuri[0].'?';
-		
+
 		$args = explode('&', $expuri[1]);
 		$notincludeargs = explode(",", str_replace(" ", "", $notincludeargs));
-		
+
 		$rargs = null;
 		foreach($args as $arg) {
 			$expargs = explode('=', $arg);
-			
-			if ((!$inverse && 
+
+			if ((!$inverse &&
 				!in_array($arg, $notincludeargs) &&
 				!in_array($expargs[0], $notincludeargs)) ||
-				($inverse && 
-				in_array($expargs[0], $notincludeargs))) 
+				($inverse &&
+				in_array($expargs[0], $notincludeargs)))
 			{
 				$rargs .= $arg."&amp;";
 			}
 		}
-		
+
 		return $expuri[0].'?'.substr($rargs, 0, strlen($rargs)-5);
 	}
-	
+
 	static function get() {
 		$https = false;
-		
+
 		if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')
 			$https = true;
-		
+
 		$url = 'http'.($https?'s':null).'://'.$_SERVER['SERVER_NAME'];
-		
+
 		if (($_SERVER['SERVER_PORT'] != '80' && !$https) ||
 			($_SERVER['SERVER_PORT'] != '443' && $https))
 			$url .= ':'.$_SERVER['SERVER_PORT'];
-		
+
 		$url .= $_SERVER['REQUEST_URI'];
 		return $url;
 	}
-	
+
 	static function fix($url, $reverse = false) {
-		if (!$url) 
+		if (!$url)
 			return null;
-			
+
 		$url = strip_tags($url);
-		
+
 		if (strstr($url, " "))
 			$url = substr($url, 0, strpos($url, " "));
-			
+
 		if ($reverse)
 			return preg_replace('/^(.*?):\/\//', null, strtolower($url));
-		
+
 		if (!preg_match('/^(\/|.*?:\/\/)/', $url) &&
-			preg_match('/(www|(.*?\..*))/', $url)) 
+			preg_match('/(www|(.*?\..*))/', $url))
 				return "http://".$url;
-		
+
 		return $url;
 	}
-	
+
 	static function parseLinks($content) {
-		return preg_replace(
-			"'(\"|\\'|>)?([[:alpha:]]+://[^<>[:space:]]+[[:alnum:]/])'ie",
-				"eval(\"
-					if ('\\1') {
-						return '\\1\\2';
+		return preg_replace_callback(
+			"'(\"|\\'|>)?([[:alpha:]]+://[^<>[:space:]]+[[:alnum:]/])'i",
+				function ($matches) {
+					if ($matches[1]) {
+						return $matches[1].$matches[2];
 					} else {
-						if (strlen('\\2') > 70) return '<a href=\'\\2\' target=\'_blank\'>'.substr('\\2', 0, 70).'...</a>';
-						else return '<a href=\'\\2\' target=\'_blank\'>\\2</a>';
+						if (strlen($matches[2]) > 70)
+							return '<a href=\''.$matches[2].'\' target=\'_blank\'>'.substr($matches[2], 0, 70).'...</a>';
+						else
+							return '<a href=\''.$matches[2].'\' target=\'_blank\'>'.$matches[2].'</a>';
 					}
-				\"); ", $content);
+				}, $content);
 	}
-	
+
 	static function path($level= 0) {
 		if (!url::$pagePath)
 			return;
-			
+
 		if (!$level)
 			return url::$pagePath;
-			
+
 		$path = null;
 		$exppaths = explode('/', url::$pagePath);
-		
+
 		foreach($exppaths as $key => $exppath) {
-			if ($path) 
+			if ($path)
 				$path .= '/';
-				
+
 			$path .= $exppath;
-			
+
 			if ($key == count($exppaths)-1-$level)
 				break;
 		}
-		
+
 		return $path;
 	}
-	
+
 	static function setPath($path) {
 		url::$pagePath = $path;
 	}
-	
+
 	static function rootDomain() {
-		return preg_replace('/(\/.*|^www\.)/', '',  
-					preg_replace('/.*:\/\//', '', 
+		return preg_replace('/(\/.*|^www\.)/', '',
+					preg_replace('/.*:\/\//', '',
 						SITE_URL));
 	}
-	
+
 	static function getPathID($level = 0, $pathvar = 'path') {
 		$path = admin::path($level);
-		
+
 		if (!$path)
 			return 0;
-		
+
 		preg_match('/.*\/([0-9]*)(\/|$|&)/', $path, $matches);
-		
+
 		if (isset($matches[1]))
 			return (int)$matches[1];
-		
+
 		return 0;
 	}
-	
+
 	static function generateLink($link) {
 		return
 			(!preg_match('/^\/|^javascript:|^(.*?):\/\//', $link)?
@@ -342,7 +446,7 @@ class url {
 				null).
 			$link;
 	}
-	
+
 	static function genPathFromString($string) {
 		$chars = array(
 			'A' => '/&Agrave;|&Aacute;|&Acirc;|&Atilde;|&Auml;|&Aring;/',
@@ -363,136 +467,136 @@ class url {
 			'y' => '/&yacute;|&yuml;/',
 			'-' => '/&nbsp;| - |  | |\/|\\\|\|/'
 			);
-		
+
 		return strtolower(
 			preg_replace('/([^a-z^0-9^_^-]*)/i',
-			'', 
-			preg_replace($chars, array_keys($chars), 
-				htmlentities(strip_tags(trim($string)), 
+			'',
+			preg_replace($chars, array_keys($chars),
+				htmlentities(strip_tags(trim($string)),
 					ENT_NOQUOTES))));
 	}
-	
+
 	static function escapeRegexp($string) {
 		$patterns = array(
 			'/\//', '/\^/', '/\./', '/\$/', '/\|/',
-			'/\(/', '/\)/', '/\[/', '/\]/', '/\*/', '/\+/', 
+			'/\(/', '/\)/', '/\[/', '/\]/', '/\*/', '/\+/',
 			'/\?/', '/\{/', '/\}/', '/\,/');
-		
+
 		$replace = array(
-			'\/', '\^', '\.', '\$', '\|', '\(', '\)', 
+			'\/', '\^', '\.', '\$', '\|', '\(', '\)',
 			'\[', '\]', '\*', '\+', '\?', '\{', '\}', '\,');
-		
+
 		return preg_replace($patterns,$replace, $string);
 	}
-	
+
 	static function flushDisplay($delay = false) {
 		@ob_flush();
 		flush();
-		
+
 		if ($delay)
 			usleep(50000);
 	}
-	
+
 	static function searchQuery($search, $fields = array('Title'), $type = 'AND') {
 		if (!trim($search) || !is_array($fields) || !count($fields))
 			return;
-			
+
 		if (strstr($search, ','))
 			$separator = ',';
 		else
 			$separator = ' ';
-		
+
 		$query = null;
 		$keywords = explode($separator, trim($search));
-		
+
 		if (count($keywords) > 21)
 			$keywords = array_slice($keywords, 0, 21);
-		
+
 		foreach($fields as $field) {
 			if ($query)
 				$query .= " OR";
-			
+
 			$keywordsquery = null;
-			
+
 			foreach($keywords as $keyword) {
 				if ($keywordsquery)
 					$keywordsquery .= " ".$type;
-			
+
 				$keywordsquery .= " `".$field."` LIKE '%".
 					sql::escape(trim($keyword))."%'";
 			}
-			
+
 			if ($keywordsquery)
 				$query .= " (".$keywordsquery.") ";
 		}
-		
+
 		if (!$query)
 			return;
-		
+
 		return " AND (".$query.")";
 	}
-	
+
 	static function displayCSSLinks() {
 		modules::displayCSSLinks();
-		
+
 		if ($GLOBALS['ADMIN'])
 			admin::displayCSSLinks();
 	}
-	
+
 	static function displayPath($level = 0, $displaypath = null) {
 		if (!$displaypath)
 			$displaypath = url::$pagePath;
-			
+
 		if (!$displaypath)
 			return;
-			
+
 		$path = null;
 		$exppaths = explode('/', $displaypath);
-		
+
 		$i = 0;
 		foreach($exppaths as $key => $exppath) {
-			if ($path) 
+			if ($path)
 				$path .= '/';
-				
+
 			$path .= $exppath;
-			
+
 			if ($key < $level)
 				continue;
-			
+
 			if (!(int)$exppath) {
 				if ($i > 0)
 					echo "<span class='url-path-separator'> / </span>";
-				
-				if (SEO_FRIENDLY_LINKS && 
-					(!isset($GLOBALS['ADMIN']) || !$GLOBALS['ADMIN'])) 
+
+				if (SEO_FRIENDLY_LINKS &&
+					(!isset($GLOBALS['ADMIN']) || !$GLOBALS['ADMIN']))
 				{
 					echo
 						"<a href='". SITE_URL .
 							$path."'>".__($exppath)."</a>";
-					
+
 				} else {
 					echo
 						"<a href='". url::uri('ALL') .
 							"?path=".$path."'>".__($exppath)."</a>";
 				}
-				
+
 				$i++;
 			}
 		}
 	}
-	
+
 	static function displayRootPath() {
 		echo ROOT_DIR;
 	}
-	
+
 	static function displayError() {
 		$codes = new contentCodes();
 		$codes->display(PAGE_404_ERROR_TEXT);
 		unset($codes);
 	}
-	
+
 	static function displayValidXHTML() {
-		echo 
+		echo
 			"<p class='validXHTML'>" .
 				"<a href='http://validator.w3.org/check?uri=referer' " .
 					"target='_blank'>" .
@@ -502,7 +606,7 @@ class url {
 				"</a>" .
 			"</p>";
 	}
-	
+
 	static function displayValidCSS() {
 		echo
 			"<p class='validCSS'>" .
@@ -514,30 +618,30 @@ class url {
 				"</a>" .
 			"</p>";
 	}
-	
+
 	static function displaySearch($search, $results = null) {
 		if (!$search)
 			return;
-		
+
 		$searches = array();
-		
-		$tooltipcontent = 
+
+		$tooltipcontent =
 			__("Searching for").": ";
-		
+
 		if (strstr($search, ','))
 			$separator = ',';
 		else
 			$separator = ' ';
-		
+
 		foreach(explode($separator, $search) as $key => $searchtag) {
 			if (!trim($searchtag))
 				continue;
-			
+
 			if (in_array(trim($searchtag), $searches))
 				continue;
-			
+
 			$searches[] = trim($searchtag);
-			$tooltipcontent .= 
+			$tooltipcontent .=
 				"<a href='".url::uri('search').
 					"&amp;search=" .
 					urlencode(
@@ -547,23 +651,23 @@ class url {
 									($key?'(^|'.$separator.')':'').
 									url::escapeRegexp($searchtag).
 									(!$key?'('.$separator.'|$)':'').
-								'/i', 
-								'', 
+								'/i',
+								'',
 								$search))) .
 					"'>".
 				strtoupper(trim($searchtag))."</a>" .
 				"<sup class='red'>x</sup> &nbsp;";
 		}
-		
-		$tooltipcontent .= 
+
+		$tooltipcontent .=
 			"(<a href='".url::uri('search, searchin')."'>" .
 				__("clear") .
 			"</a>)";
-			
+
 		tooltip::display(
 			$tooltipcontent,
 			TOOLTIP_NOTIFICATION);
-		
+
 		if (isset($results) && !$results)
 			tooltip::display(
 				__("Your search returned no results. Please make sure all " .
@@ -571,26 +675,26 @@ class url {
 					"clicking on them to remove."),
 				TOOLTIP_NOTIFICATION);
 	}
-	
+
 	function displayArguments() {
 		if (!$this->arguments)
 			return false;
-		
+
 		$encode = false;
 		$decode = false;
-			
+
 		if (preg_match('/(^|\/)encode($|\/)/', $this->arguments)) {
 			$this->arguments = preg_replace('/(^|\/)encode($|\/)/', '\1', $this->arguments);
 			$encode = true;
 		}
-		
+
 		if (preg_match('/(^|\/)decode($|\/)/', $this->arguments)) {
 			$this->arguments = preg_replace('/(^|\/)decode($|\/)/', '\1', $this->arguments);
 			$decode = true;
 		}
-		
+
 		preg_match('/(.*?)(\/|$)(.*)/', $this->arguments, $matches);
-		
+
 		if (!isset($matches[1]) || !$matches[1]) {
 			if ($encode)
 				echo urlencode(url::get());
@@ -598,81 +702,81 @@ class url {
 				echo urldecode(url::get());
 			else
 				echo url::get();
-			
+
 			return true;
 		}
-		
+
 		$argument = strtolower($matches[1]);
 		$parameters = null;
 		$path = null;
-		
+
 		if (isset($matches[3]))
 			$parameters = $matches[3];
-			
+
 		if (isset($_GET['path']))
 			$path = strip_tags($_GET['path']);
-		
+
 		ob_start();
-		
+
 		switch($argument) {
 			case 'uri':
 				echo url::uri($parameters);
 				break;
-				
+
 			case 'server':
 				echo $_SERVER['SERVER_NAME'];
 				break;
-				
+
 			case 'sessionid':
 				echo session_id();
 				break;
-				
+
 			case 'root':
 				echo ROOT_DIR;
 				break;
-				
+
 			case 'srcpath':
 				echo $path;
 				break;
-				
+
 			case 'title':
 				url::displayPageTitle($parameters);
 				break;
-				
+
 			case 'description':
 				url::displayPageDescription();
 				break;
-				
+
 			case 'path':
 				url::displayPath($parameters, $path);
 				break;
-				
+
 			case 'validxhtml':
 				url::displayValidXHTML();
 				break;
-				
+
 			case 'validcss':
 				url::displayValidCSS();
 				break;
-			
+
 			default:
 				echo $parameters;
 				break;
 		}
-		
+
 		$content = ob_get_contents();
 		ob_end_clean();
-		
+
 		if ($encode)
 			echo urlencode(htmlspecialchars_decode($content, ENT_QUOTES));
 		elseif ($decode)
 			echo htmlspecialchars(urldecode($content), ENT_QUOTES);
 		else
 			echo $content;
-		
+
 		return true;
 	}
-	
+
 	function display() {
 		if ($this->displayArguments())
 			return;
@@ -687,20 +791,20 @@ class url {
  *  me@pijulius.com
  ****************************************************************************/
 
-define('FILE_TYPE_UPLOAD', 1); 
+define('FILE_TYPE_UPLOAD', 1);
 define('FILE_TYPE_IMAGE', 2);
-define('FILE_TYPE_VIDEO', 3); 
+define('FILE_TYPE_VIDEO', 3);
 define('FILE_TYPE_BANNER', 4);
-define('FILE_TYPE_AUDIO', 5); 
+define('FILE_TYPE_AUDIO', 5);
 
 class files {
 	static $allowedFileTypes = array(
 		FILE_TYPE_UPLOAD => '\.(7z|aiff|asf|avi|bmp|csv|doc|fla|flv|gif|gz|gzip|jpeg|jpg|mid|mov|mp3|mp4|mpc|mpeg|mpg|ods|odt|pdf|png|ppt|eps|pxd|qt|ram|rar|rm|rmi|rmvb|rtf|sdc|sitd|swf|sxc|sxw|tar|tgz|tif|tiff|txt|vsd|wav|wma|wmv|xls|xml|zip|patch|sql|mo|po)$',
 		FILE_TYPE_IMAGE => '\.(jpg|gif|jpeg|png|bmp)$',
-		FILE_TYPE_VIDEO => '\.(avi|wmv|swf|flv|mov|mp4|webm|ogv|mpeg|mpg|qt|rm)$', 
+		FILE_TYPE_VIDEO => '\.(avi|wmv|swf|flv|mov|mp4|webm|ogv|mpeg|mpg|qt|rm)$',
 		FILE_TYPE_BANNER => '\.(jpg|gif|jpeg|png|bmp|swf)$',
 		FILE_TYPE_AUDIO => '\.(mid|mp3|rmi|wav|wma)$');
-	
+
 	static $mimeTypes = array(
 		"323" => "text/h323",
 		"acx" => "application/internet-property-stream",
@@ -888,58 +992,58 @@ class files {
 		"xwd" => "image/x-xwindowdump",
 		"z" => "application/x-compress",
 		"zip" => "application/zip");
-		
+
 	static function getUploadMaxFilesize() {
 		return settings::iniGet('upload_max_filesize', true);
 	}
-	
+
  	static function upload($file, $to, $filetype = FILE_TYPE_UPLOAD) {
 		$topath = preg_replace('/(.*(\/|\\\)).*/', '\1', $to);
 		$tofilename = preg_replace('/.*(\/|\\\)/', '', $to);
-		
+
  		if (strstr($file, '://')) {
 			$filename = preg_replace('/.*(\/|\\\)/', '', $file);
-			
+
 			if (!$tofilename)
 				$tofilename = preg_replace("/[^A-Za-z0-9._-]/", "", $filename);
- 			
+
  		} elseif (strstr($file, '/') || strstr($file, '\\')) {
 			$filename = preg_replace('/.*(\/|\\\)/', '', $file);
-			
+
 			if (!$tofilename) {
 				foreach($_FILES as $f) {
 					if (is_array($f['tmp_name'])) {
 						foreach($f['tmp_name'] as $key => $fi) {
 							if ($fi == $file) {
-								$tofilename = preg_replace("/[^A-Za-z0-9._-]/", "", 
+								$tofilename = preg_replace("/[^A-Za-z0-9._-]/", "",
 									$f['name'][$key]);
 								break;
 							}
 						}
-						
+
 					} elseif ($f['tmp_name'] == $file) {
-						$tofilename = preg_replace("/[^A-Za-z0-9._-]/", "", 
+						$tofilename = preg_replace("/[^A-Za-z0-9._-]/", "",
 							$f['name']);
 						break;
 					}
 				}
 			}
- 			
+
 			if (!$tofilename)
 				$tofilename = preg_replace("/[^A-Za-z0-9._-]/", "", $filename);
- 			
+
  		} else {
 	 		$fileid = preg_replace('/\[.*?\]/', '', $file);
 	 		$filearrayid = null;
-	 		
+
  			preg_match('/\[(.*?)\]/', $file, $matches);
- 			
+
  			if (isset($matches[1]))
 	 			$filearrayid = $matches[1];
-	 		
+
  			if (!isset($_FILES[$fileid]))
  				return false;
- 			
+
 	 		if (isset($filearrayid)) {
 	 			$file = $_FILES[$fileid]['tmp_name'][$filearrayid];
 				$filename = $_FILES[$fileid]['name'][$filearrayid];
@@ -947,11 +1051,11 @@ class files {
 	 			$file = $_FILES[$fileid]['tmp_name'];
 				$filename = $_FILES[$fileid]['name'];
 	 		}
-	 		
+
 			if (!$tofilename)
 				$tofilename = preg_replace("/[^A-Za-z0-9._-]/", "", $filename);
  		}
-		
+
 		//if uploader is not admin we won't allow files to be overwritten
 		if (!$GLOBALS['USER']->data['Admin'] && @file_exists($topath.$tofilename)) {
 			tooltip::display(
@@ -959,36 +1063,36 @@ class files {
 					"on our site. Please rename and reselect the file you " .
 					"would like to upload and try again."), $tofilename),
 				TOOLTIP_ERROR);
-				
+
 			return false;
 		}
-		
+
 		if (!preg_match("/".files::$allowedFileTypes[$filetype]."/i", $tofilename)) {
 			tooltip::display(
 				__("Unsuported file format! Supported formats are").
 					" ".str_replace('|', ', ', files::$allowedFileTypes[$filetype]).". " .
 				__("Please reselect the file you would like to upload."),
 				TOOLTIP_ERROR);
-				
+
 			return false;
 		}
-		
+
 		if (!is_dir($topath) && !@mkdir($topath, 0777, true)) {
 			tooltip::display(
-				__("Setting up your file's storage failed!"). " " . 
+				__("Setting up your file's storage failed!"). " " .
 				sprintf(__("Please make sure that %s is writable by me " .
 					"or contact webmaster."), $topath),
 				TOOLTIP_ERROR);
-				
+
 			return false;
 		}
-		
+
  		if (strstr($file, '://')) {
 			$uploaded = @copy($file, $topath.$tofilename);
  		} else {
 			$uploaded = @move_uploaded_file($file, $topath.$tofilename);
  		}
-		
+
 		if (!$uploaded) {
 			tooltip::display(
 				__("Couldn't move the file to the storage!"). " " .
@@ -996,32 +1100,32 @@ class files {
 					"allowed upload limit (%s) but please also make sure that %s " .
 					"is writable by me or contact webmaster."),
 						files::humanSize(files::getUploadMaxFilesize()),
-						$topath), 
+						$topath),
 				TOOLTIP_ERROR);
-				
+
 			return false;
 		}
 
 		return $tofilename;
  	}
- 	
+
  	static function display($file, $forcedownload = false, $resumable = true) {
  		if (!@is_file($file))
  			return;
- 		
+
 		$size = @filesize($file);
 		$fileinfo = @pathinfo($file);
 		$filemtime = @filemtime($file);
-		
+
 		$filename = (strstr($_SERVER['HTTP_USER_AGENT'], 'MSIE')) ?
 			preg_replace('/\./', '%2e', $fileinfo['basename'], substr_count($fileinfo['basename'], '.') - 1) :
 			$fileinfo['basename'];
-		
+
 		$ctype='application/force-download';
-		
+
 		if (!$forcedownload && isset(files::$mimeTypes[strtolower($fileinfo['extension'])]))
 			$ctype = files::$mimeTypes[strtolower($fileinfo['extension'])];
-		
+
 		if($resumable && isset($_SERVER['HTTP_RANGE'])) {
 			list($size_unit, $range_orig) = explode('=', $_SERVER['HTTP_RANGE'], 2);
 
@@ -1032,158 +1136,158 @@ class files {
 		} else {
 			$range = '';
 		}
-		
+
 		$seek_end = null;
 		$seek_start = null;
-		
+
 		$exprange = explode('-', $range, 2);
-		
+
 		if (isset($exprange[0]))
 			$seek_start = $exprange[0];
-		
+
 		if (isset($exprange[1]))
 			$seek_end = $exprange[1];
-		
+
 		$seek_end = (empty($seek_end)) ? ($size - 1) : min(abs(intval($seek_end)),($size - 1));
 		$seek_start = (empty($seek_start) || $seek_end < abs(intval($seek_start))) ? 0 : max(abs(intval($seek_start)),0);
-		
+
 		if ($forcedownload && $resumable) {
 			if ($seek_start > 0 || $seek_end < ($size - 1)) {
 				header('HTTP/1.1 206 Partial Content');
 			}
-			
+
 			header('Accept-Ranges: bytes');
 			header('Content-Range: bytes '.$seek_start.'-'.$seek_end.'/'.$size);
 		}
 
 		header('Cache-Control: public');
         header('Last-Modified: '.gmdate('D, d M Y H:i:s', $filemtime).' GMT');
-		
+
 		header('Content-Type: ' . $ctype);
 		header('Content-Length: '.($seek_end - $seek_start + 1));
-		
+
 		if ($forcedownload)
 			header('Content-Disposition: attachment; filename="' . $filename . '"');
-		
-		if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && 
-			(strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= $filemtime)) 
+
+		if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) &&
+			(strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) >= $filemtime))
 		{
 			header('HTTP/1.0 304 Not Modified');
 			return;
 		}
-		
+
 		$fp = fopen($file, 'rb');
 		fseek($fp, $seek_start);
-		
+
 		while(!feof($fp)) {
 			if (!ini_get('safe_mode'))
 	        	@set_time_limit(0);
-	        
+
     	    print(fread($fp, 1024*8));
         	flush();
         	ob_flush();
 		}
-		
+
 		fclose($fp);
  	}
- 	
+
  	static function humanSize($size) {
 		$sizetext = array('B', 'KB', 'MB', 'GB', 'TB', 'PB');
-		
+
 		$i = 0;
 		for ($i = 0; $size >= 1024; $i++)
 			$size /= 1024;
-		
+
 		return round($size).' '.$sizetext[$i];
  	}
- 	
+
  	static function mimeType($file) {
         $type = @exec("file -bi ".escapeshellarg($file));
         if($type)
         	return $type;
-        
+
         $type = files::$mimeTypes[preg_replace('/.*\./', '', $file)];
  		if ($type)
         	return $type;
-        
+
         return __("uknown/file");
  	}
- 	
+
  	static function humanMimeType($file) {
  		$type = @exec("file -b ".escapeshellarg($file));
  		if ($type)
         	return $type;
-        
+
         $type = files::$mimeTypes[preg_replace('/.*\./', '', $file)];
  		if ($type)
         	return $type;
-        
+
         return __("Uknown File Type");
  	}
- 	
+
  	static function ext2MimeClass($file) {
 		if (preg_match('/\.(7z|rar|gz|gzip|tar|tgz|zip)$/i', $file))
 			return "mime-type-package";
-		
+
 		if (preg_match('/\.(gif|bmp|jpeg|jpg|png|tif|tiff)$/i', $file))
 			return "mime-type-photo";
-		
+
 		if (preg_match('/\.(asf|avi|mov|fla|flv|mid|mp3|mp4|mpc|mpeg|mpg|rm|qt|ram|swf|wav|wma|wmv)$/i', $file))
 			return "mime-type-multimedia";
-		
+
 		if (preg_match('/\.(csv|doc|pdf|ppt|rtf|xls)$/i', $file))
 			return "mime-type-office";
-		
+
 		if (preg_match('/\.(txt|xml)$/i', $file))
 			return "mime-type-text";
-		
+
 		if (preg_match('/\.(patch)$/i', $file))
 			return "mime-type-patch";
-		
+
 		if (preg_match('/\.(sql)$/i', $file))
 			return "mime-type-db";
  	}
- 	
+
  	static function exists($file) {
  		return file_exists($file);
  	}
- 	
+
  	static function delete($file) {
  		if (strstr($file, '://'))
  			return false;
- 		
+
  		if (@is_dir($file)) {
 			$d = dir($file);
-			
+
 			while (false !== ($entry = $d->read()))
 				if ($entry != '.' && $entry != '..')
 					files::delete($file.'/'.$entry);
-			
+
 			$d->close();
 			return @rmdir($file);
  		}
- 		
+
  		return @unlink($file);
  	}
- 	
+
  	static function rename($file, $to) {
  		$dir = preg_replace('/((.*(\/|\\\))|^).*$/', '\2', $to);
- 		
+
 		if ($dir && !is_dir($dir) && !@mkdir($dir, 0777, true))
 			return false;
- 		
+
  		return @rename($file, $to);
  	}
- 	
+
  	static function copy($file, $to) {
  		$dir = preg_replace('/((.*(\/|\\\))|^).*$/', '\2', $to);
- 		
+
 		if ($dir && !is_dir($dir) && !@mkdir($dir, 0777, true))
 			return false;
- 		
+
 		return @copy($file, $to);
  	}
- 	
+
  	static function get($file, $httpheader = null) {
  		if (strstr($file, '://')) {
 			$ch = curl_init();
@@ -1191,44 +1295,44 @@ class files {
 			curl_setopt($ch, CURLOPT_HEADER, false);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-			
+
 			if ($httpheader && is_array($httpheader))
 				curl_setopt($ch, CURLOPT_HTTPHEADER, $httpheader);
-			
+
 			$data = curl_exec($ch);
 			curl_close($ch);
-			
+
 			return $data;
  		}
- 		
+
  		return @file_get_contents($file);
  	}
- 	
+
  	static function create($file, $data) {
  		$dir = preg_replace('/((.*(\/|\\\))|^).*$/', '\2', $file);
- 		
+
 		if ($dir && !is_dir($dir) && !@mkdir($dir, 0777, true))
 			return false;
- 		
+
  		return @file_put_contents($file, $data);
  	}
- 	
+
  	static function save($file, $data = null, $debug = false) {
  		if ($debug)
  			echo "<p>".__("Writing file:")." ".$file." ";
- 		
+
  		$result = @files::create($file, $data);
- 		
+
  		if (!$result) {
  			if ($debug)
  				echo __("[ERROR]")."</p>";
- 			
+
  			return false;
  		}
- 		
+
  		if ($debug)
 			echo __("[SUCCESS]")."</p>";
-		
+
  		return @$result;
  	}
 }
@@ -1240,7 +1344,7 @@ class files {
  *  Copyright  2009  Istvan Petres (aka P.I.Julius)
  *  me@pijulius.com
  ****************************************************************************/
- 
+
 define('FORM_INPUT_TYPE_TEXT', 1);
 define('FORM_INPUT_TYPE_EMAIL', 2);
 define('FORM_INPUT_TYPE_CHECKBOX', 3);
@@ -1303,7 +1407,7 @@ class form {
 	var $preview = false;
 	var $verifyPassword = true;
 	var $textsDomain = 'messages';
-	
+
 	var $emptyElement = array(
 		'Title' => '',
 		'Name' => 'PlaceholderElement',
@@ -1314,7 +1418,7 @@ class form {
 		'Attributes' => '',
 		'ValueType' => FORM_VALUE_TYPE_TEXT,
 		'Value' => null);
-	
+
 	function __construct($title = null, $id = null, $method = 'post') {
 		$this->title = $title;
 		$this->id = ($id?$id:preg_replace('/ /', '', strtolower($title)));
@@ -1322,28 +1426,28 @@ class form {
 		$this->method = $method;
 		$this->textsDomain = 'messages';
 	}
-	
+
 	function submitted() {
 		if ($this->get($this->id."submit"))
 			return $this->get($this->id."submit");
-		
+
 		foreach($this->elements as $element) {
-			if ($element['Type'] == FORM_INPUT_TYPE_SUBMIT && 
+			if ($element['Type'] == FORM_INPUT_TYPE_SUBMIT &&
 				$this->get($element['Name']))
 			{
 				return $this->get($element['Name']);
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	function reset($elementname = null) {
 		foreach($this->elements as $elementnum => $element) {
 			if (!$elementname || $elementname == $element['Name'])
 				unset($GLOBALS['_'.strtoupper($this->method)][$element['Name']]);
 				unset($this->elements[$elementnum]['VerifyResult']);
-				
+
 				if (in_array($element['Type'], array(
 					FORM_INPUT_TYPE_CHECKBOX,
 					FORM_INPUT_TYPE_RADIO,
@@ -1353,90 +1457,90 @@ class form {
 					$this->elements[$elementnum]['Value'] = null;
 					continue;
 				}
-				
+
 				$originalvalue = null;
-				
+
 				if (isset($this->elements[$elementnum]['OriginalValue']))
 					$originalvalue = $this->elements[$elementnum]['OriginalValue'];
-				
+
 				$this->elements[$elementnum]['Value'] = $originalvalue;
 		}
 	}
-	
+
 	function clear() {
 		$this->elements = array();
 	}
-	
+
 	function getPostArray() {
 		$post = array();
-		
+
 		foreach($this->elements as $element) {
 			$elementid = preg_replace('/\[.*\]/i', '', $element['Name']);
-			
+
 			if (isset($post[$elementid]))
 				continue;
-			
+
 			$post[$elementid] = $this->get($element['Name']);
 		}
-			
+
 		return $post;
 	}
-	
+
 	function getElementID($elementname = null) {
 		if (!$elementname)
 			return count($this->elements)-1;
-		
+
 		$elementid = null;
-		
+
 		foreach($this->elements as $elementnum => $element) {
 			if (!isset($element['Name']))
 				continue;
-			
-			if ($element['Name'] == $elementname || 
-				preg_replace('/\[.*\]/', '', $element['Name']) == $elementname) 
+
+			if ($element['Name'] == $elementname ||
+				preg_replace('/\[.*\]/', '', $element['Name']) == $elementname)
 			{
 				$elementid = $elementnum;
 				break;
 			}
 		}
-		
+
 		return $elementid;
 	}
-			
-	function updateElement($title, $name, $type = FORM_INPUT_TYPE_TEXT, 
-				$required = false, $value = null, $elementid = null) 
+
+	function updateElement($title, $name, $type = FORM_INPUT_TYPE_TEXT,
+				$required = false, $value = null, $elementid = null)
 	{
 		if (isset($elementid) && !isset($this->elements[$elementid]))
 			return false;
-		
+
 		if (!isset($elementid)) {
 			if (isset($this->elements) && is_array($this->elements))
 				$elementid = count($this->elements);
 			else
 				$elementid = 0;
 		}
-		
+
 		if ($type == FORM_INPUT_TYPE_VERIFICATION_CODE) {
 			if ($GLOBALS['USER']->loginok && !$this->preview)
 				return false;
-			
-			$this->elements[$elementid]['Title'] = 
+
+			$this->elements[$elementid]['Title'] =
 				"<b>".__($title, $this->textsDomain)."</b>";
-					
+
 			$this->elements[$elementid]['AdditionalTitle'] =
 				"<div class='comment'>" .
 					__("Enter the code shown on the right") .
 				"<p>&nbsp;</p></div>";
-				
+
 			$this->elements[$elementid]['Name'] = "scimagecode";
-			$this->elements[$elementid]['EntryID'] = "scimagecode";				
+			$this->elements[$elementid]['EntryID'] = "scimagecode";
 			$this->elements[$elementid]['Type'] = $type;
 			$this->elements[$elementid]['Required'] = true;
 			$this->elements[$elementid]['ValueType'] = FORM_VALUE_TYPE_TEXT;
 			$this->elements[$elementid]['Attributes'] = '';
 			$this->elements[$elementid]['Value'] = $this->get($elementid);
-					
-			$this->elements[$elementid]['AdditionalPreText'] = 
+
+			$this->elements[$elementid]['AdditionalPreText'] =
 				"<div class='security-image ".$this->id."-scimage'>" .
 					"<img src='".url::uri().
 						"&amp;request=security&amp;scimage=1&amp;ajax=1' " .
@@ -1451,60 +1555,60 @@ class form {
 						__("Reload").
 					"</a>" .
 				"</div>";
-			
+
 			return $elementid;
 		}
-		
+
 		$this->elements[$elementid]['Title'] = $title;
 		$this->elements[$elementid]['Name'] = $name;
-		$this->elements[$elementid]['EntryID'] = 
+		$this->elements[$elementid]['EntryID'] =
 			preg_replace('/([^a-z^0-9^_^-]*)/i', '', $name);
 		$this->elements[$elementid]['Type'] = $type;
 		$this->elements[$elementid]['Required'] = $required;
 		$this->elements[$elementid]['OriginalValue'] = $value;
 		$this->elements[$elementid]['Attributes'] = '';
 		$this->elements[$elementid]['ValueType'] = FORM_VALUE_TYPE_TEXT;
-		
+
 		if (JCORE_VERSION >= '0.6') {
 			if ($type == FORM_INPUT_TYPE_EMAIL)
-				$this->elements[$elementid]['TooltipText'] = 
+				$this->elements[$elementid]['TooltipText'] =
 					__("e.g. user@domain.com");
 			elseif ($type == FORM_INPUT_TYPE_TIMESTAMP)
-				$this->elements[$elementid]['TooltipText'] = 
+				$this->elements[$elementid]['TooltipText'] =
 					__("e.g. 2010-07-21 21:00:00");
 			elseif ($type == FORM_INPUT_TYPE_DATE)
-				$this->elements[$elementid]['TooltipText'] = 
+				$this->elements[$elementid]['TooltipText'] =
 					__("e.g. 2010-07-21");
 			elseif ($type == FORM_INPUT_TYPE_TIME)
-				$this->elements[$elementid]['TooltipText'] = 
+				$this->elements[$elementid]['TooltipText'] =
 					__("e.g. 21:00:00");
 			elseif ($type == FORM_INPUT_TYPE_COLOR)
-				$this->elements[$elementid]['TooltipText'] = 
+				$this->elements[$elementid]['TooltipText'] =
 					__("e.g. #ff9933");
 			elseif ($type == FORM_INPUT_TYPE_URL)
-				$this->elements[$elementid]['TooltipText'] = 
+				$this->elements[$elementid]['TooltipText'] =
 					__("e.g. http://domain.com");
 			elseif ($type == FORM_INPUT_TYPE_TEL)
-				$this->elements[$elementid]['TooltipText'] = 
+				$this->elements[$elementid]['TooltipText'] =
 					__("e.g. +1 (202) 555-1234");
 		}
-		
+
 		if ($type == FORM_INPUT_TYPE_FILE)
 			$this->elements[$elementid]['ValueType'] = FORM_VALUE_TYPE_FILE;
-		
+
 		$submittedvalue = null;
-		
+
 		if (isset($GLOBALS['_'.strtoupper($this->method)][$name]))
 			$submittedvalue = $GLOBALS['_'.strtoupper($this->method)][$name];
-		
+
 		if (preg_match('/\[(.*)\]/', $name, $matches) &&
-			isset($GLOBALS['_'.strtoupper($this->method)][preg_replace('/\[.*\]/', '', $name)]) && 
+			isset($GLOBALS['_'.strtoupper($this->method)][preg_replace('/\[.*\]/', '', $name)]) &&
 			is_array($GLOBALS['_'.strtoupper($this->method)][preg_replace('/\[.*\]/', '', $name)]))
 		{
-			$submittedvalue = 
+			$submittedvalue =
 				$GLOBALS['_'.strtoupper($this->method)]
 					[preg_replace('/\[.*\]/', '', $name)];
-			
+
 			if (isset($matches[1])) {
 				$arraykeys = explode('][', $matches[1]);
 				foreach($arraykeys as $arraykey) {
@@ -1515,221 +1619,221 @@ class form {
 				}
 			}
 		}
-		
-		if ($type == FORM_INPUT_TYPE_CHECKBOX || 
-			$type == FORM_INPUT_TYPE_RADIO) 
+
+		if ($type == FORM_INPUT_TYPE_CHECKBOX ||
+			$type == FORM_INPUT_TYPE_RADIO)
 		{
 			$this->elements[$elementid]['Value'] = $submittedvalue;
 			return $elementid;
 		}
-		
-		$this->elements[$elementid]['Value'] = 
+
+		$this->elements[$elementid]['Value'] =
 			(isset($submittedvalue)?
 				$submittedvalue:
 				$value);
-		
+
 		return $elementid;
 	}
-	
+
 	function getFile($elementname) {
 		if (!$elementname)
 			return false;
-		
+
 		$elementid = $this->getElementID($elementname);
-		
+
 		if (!isset($elementid))
 			return false;
-		
+
  		$fileid = preg_replace('/\[.*?\]/', '', $elementname);
  		$filearrayid = null;
- 		
+
  		preg_match('/\[(.*?)\]/', $elementname, $matches);
- 		
+
  		if (isset($matches[1]))
 	 		$filearrayid = $matches[1];
- 		
+
  		if (isset($filearrayid))
 			$file = $_FILES[$fileid]['tmp_name'][$filearrayid];
  		else
 			$file = $_FILES[$fileid]['tmp_name'];
-		
+
 		if ($file)
 			return $file;
-		
+
 		return $this->get($elementname);
 	}
-	
+
 	function get($elementname) {
 		if (!isset($elementname))
 			return false;
-		
+
 		if (is_numeric($elementname)) {
 			$elementid = $elementname;
 			$elementname = $this->elements[$elementid]['Name'];
 		} else {
 			$elementid = $this->getElementID($elementname);
 		}
-		
+
 		if (!isset($elementid))
 			return false;
-		
-		if (strstr($elementname, '['))	
+
+		if (strstr($elementname, '['))
 			$elementname = preg_replace('/\[.*\]/', '', $elementname);
-		
+
 		$value = null;
 		$file = null;
-		
+
 		if (isset($GLOBALS['_'.strtoupper($this->method)][$elementname]))
 			$value = $GLOBALS['_'.strtoupper($this->method)][$elementname];
-			
+
 		if (isset($GLOBALS['_FILES'][$elementname]['name']))
 			$file = $GLOBALS['_FILES'][$elementname]['name'];
-			
+
 		if (!isset($value) && !isset($file))
 			return null;
-		
+
 		switch ($this->elements[$elementid]['ValueType']) {
 			case FORM_VALUE_TYPE_FILE:
 				return trim(strip_tags($value?
 							$value:
 							$file));
-		
+
 			case FORM_VALUE_TYPE_INT:
 			case FORM_VALUE_TYPE_BOOL:
 				return (strlen($value)?
 							(int)$value:
 							null);
-		
+
 			case FORM_VALUE_TYPE_FLOAT:
 				return form::parseFloat($value);
-		
+
 			case FORM_VALUE_TYPE_ARRAY:
 				return form::parseArray($value);
-			
+
 			case FORM_VALUE_TYPE_TIMESTAMP:
-				return 
+				return
 					($value?
-						date('Y-m-d H:i:s', 
+						date('Y-m-d H:i:s',
 							strtotime($value)):
 						null);
-			
+
 			case FORM_VALUE_TYPE_DATE:
-				return 
+				return
 					($value?
-						date('Y-m-d', 
+						date('Y-m-d',
 							strtotime($value)):
 						null);
-			
+
 			case FORM_VALUE_TYPE_HTML:
 				return $value;
-		
+
 			case FORM_VALUE_TYPE_URL:
 				return url::fix($value);
-		
+
 			case FORM_VALUE_TYPE_LIMITED_STRING:
 				return trim(preg_replace('/[^a-zA-Z0-9\@\.\_\-]/', '',
 							strip_tags($value)));
-		
+
 			case FORM_VALUE_TYPE_STRING:
 			case FORM_VALUE_TYPE_TEXT:
-			
+
 			default:
 				return form::parseString($value);
 		}
 	}
-	
+
 	function set($element, $value) {
 		$GLOBALS['_'.strtoupper($this->method)][$element] = $value;
 	}
-	
-	function insert($insertto, $title, $name, $type = FORM_INPUT_TYPE_TEXT, 
-				$required = false, $value = null, $inserttype = FORM_INSERT_AFTER) 
+
+	function insert($insertto, $title, $name, $type = FORM_INPUT_TYPE_TEXT,
+				$required = false, $value = null, $inserttype = FORM_INSERT_AFTER)
 	{
 		$inserttoid = $this->getElementID($insertto);
-		
+
 		if (!$insertto)
 			return false;
-		
+
 		if ($inserttype == FORM_INSERT_AFTER)
 			$inserttoid++;
-		
-		array_splice($this->elements, $inserttoid, count($this->elements), 
+
+		array_splice($this->elements, $inserttoid, count($this->elements),
 			array_merge(array($this->emptyElement), array_slice($this->elements, $inserttoid)));
-		
+
 		return $this->updateElement(
-			$title, $name, $type, $required, $value, $inserttoid); 
+			$title, $name, $type, $required, $value, $inserttoid);
 	}
-	
-	function add($title, $name, $type = FORM_INPUT_TYPE_TEXT, 
-				$required = false, $value = null) 
+
+	function add($title, $name, $type = FORM_INPUT_TYPE_TEXT,
+				$required = false, $value = null)
 	{
 		return $this->updateElement(
-			$title, $name, $type, $required, $value); 
+			$title, $name, $type, $required, $value);
 	}
-	
-	function edit($elementname, $title, $name, $type = FORM_INPUT_TYPE_TEXT, 
-				$required = false, $value = null) 
-	{
-		$elementid = $this->getElementID($elementname);
-		
-		if (!isset($elementid))
-			return false;
-		
-		return $this->updateElement(
-			$title, $name, $type, $required, $value, $elementid); 
-	}
-	
-	function delete($elementname) 
+
+	function edit($elementname, $title, $name, $type = FORM_INPUT_TYPE_TEXT,
+				$required = false, $value = null)
 	{
 		$elementid = $this->getElementID($elementname);
-		
+
 		if (!isset($elementid))
 			return false;
-		
+
+		return $this->updateElement(
+			$title, $name, $type, $required, $value, $elementid);
+	}
+
+	function delete($elementname)
+	{
+		$elementid = $this->getElementID($elementname);
+
+		if (!isset($elementid))
+			return false;
+
 		array_splice($this->elements, $elementid, 1);
 		return true;
 	}
-	
+
 	static function parseFloat($floatString){
 		return preg_replace('/[^0-9\.]/', '', $floatString);
 	}
-	
+
 	static function parseArray($array) {
 		if (!is_array($array))
 			return array();
-		
+
 		$strippedarray = array();
-		
+
 		foreach($array as $key => $value)
 			$strippedarray[$key] = trim(strip_tags($value));
-			
+
 		return $strippedarray;
 	}
-	
+
 	static function parseString($content) {
 		if (!$content)
 			return null;
-		
+
 		$content = (string)$content;
-		
-		$content = strip_tags($content, 
+
+		$content = strip_tags($content,
 			'<a><b><i><u><span><br><hr><em><blockquote><code>');
-		
+
 		$content = preg_replace(
-			'/<(\/?blockquote|code|span|br|hr|em|b|i|u).*?( ?\/?)>/i', 
+			'/<(\/?blockquote|code|span|br|hr|em|b|i|u).*?( ?\/?)>/i',
 			'<\1\2>', $content);
-		
+
 		$content = preg_replace(
-			'/<(\/?a).*?(( href=(\'|")(ht|f)tps?:\/\/.*?(\'|"))| ?\/?)>/i', 
+			'/<(\/?a).*?(( href=(\'|")(ht|f)tps?:\/\/.*?(\'|"))| ?\/?)>/i',
 			'<\1\3>', $content);
-		
+
 		return trim($content);
 	}
 
 	static function type2Text($type) {
 		if (!$type)
 			return;
-		
+
 		switch($type) {
 			case FORM_INPUT_TYPE_TEXT:
 				return 'Text';
@@ -1795,11 +1899,11 @@ class form {
 				return 'Undefined!';
 		}
 	}
-	
+
 	static function valueType2Text($type) {
 		if (!$type)
 			return;
-		
+
 		switch($type) {
 			case FORM_VALUE_TYPE_STRING:
 				return 'String';
@@ -1827,81 +1931,81 @@ class form {
 				return 'Undefined!';
 		}
 	}
-	
+
 	static function fcState($name, $state = false) {
 		$name = preg_replace('/^fc/', '', $name);
-		
+
 		if (!$name)
 			if (!$state)
 				return null;
 			else
 				return ' expanded';
-		
-		if ($state && (!isset($_COOKIE['fcstates']) || 
+
+		if ($state && (!isset($_COOKIE['fcstates']) ||
 			!in_array($name, explode('|', $_COOKIE['fcstates']))) ||
-			(!$state && isset($_COOKIE['fcstates']) && 
+			(!$state && isset($_COOKIE['fcstates']) &&
 			in_array($name, explode('|', $_COOKIE['fcstates']))))
 			return ' expanded';
-		
+
 		return null;
 	}
-	
+
 	function addSubmitButtons() {
 		form::add(
 			__('Submit'),
 			$this->id.'submit',
 			FORM_INPUT_TYPE_SUBMIT);
-		
+
 		form::add(
 			__('Reset'),
 			$this->id.'reset',
 			FORM_INPUT_TYPE_RESET);
 	}
-	
+
 	function setAttributes($elementname, $value = null) {
 		return $this->setElementKey('Attributes', $elementname, $value);
 	}
-	
+
 	function setPlaceholderText($elementname, $value = null) {
 		return $this->setElementKey('PlaceholderText', $elementname, $value);
 	}
-	
+
 	function setTooltipText($elementname, $value = null) {
 		return $this->setElementKey('TooltipText', $elementname, $value);
 	}
-	
+
 	function setAdditionalTitle($elementname, $value = null) {
 		return $this->setElementKey('AdditionalTitle', $elementname, $value);
 	}
-	
+
 	function setAdditionalText($elementname, $value = null) {
 		return $this->setElementKey('AdditionalText', $elementname, $value);
 	}
-	
+
 	function setAdditionalPreText($elementname, $value = null) {
 		return $this->setElementKey('AdditionalPreText', $elementname, $value);
 	}
-	
+
 	function setAutoFocus($elementname, $value = null) {
 		return $this->setElementKey('AutoFocus', $elementname, $value);
 	}
-	
+
 	function addAttributes($elementname, $value = null) {
 		return $this->setElementKey('Attributes', $elementname, $value, FORM_ELEMENT_ADD);
 	}
-	
+
 	function addAdditionalTitle($elementname, $value = null) {
 		return $this->setElementKey('AdditionalTitle', $elementname, $value, FORM_ELEMENT_ADD);
 	}
-	
+
 	function addAdditionalText($elementname, $value = null) {
 		return $this->setElementKey('AdditionalText', $elementname, $value, FORM_ELEMENT_ADD);
 	}
-	
+
 	function addAdditionalPreText($elementname, $value = null) {
 		return $this->setElementKey('AdditionalPreText', $elementname, $value, FORM_ELEMENT_ADD);
 	}
-	
+
 	function addValue($elementname, $value = null, $valuetext = null) {
 		if (isset($valuetext)) {
 			$value = array(
@@ -1913,99 +2017,99 @@ class form {
 				'ValueText' => $value);
 			$value = null;
 		}
-		
+
 		return $this->setElementKey('Values', $elementname, $value, FORM_ELEMENT_ARRAY);
 	}
-	
+
 	function disableValues($elementname, $values = null) {
 		return $this->setElementKey('DisabledValues', $elementname, $values);
 	}
-	
+
 	function setStyle($elementname, $value = null) {
 		if (isset($value))
 			$value = " style='".$value."'";
 		else
 			$elementname = " style='".$elementname."'";
-		
+
 		return $this->setElementKey('Attributes', $elementname, $value, FORM_ELEMENT_ADD);
 	}
-	
+
 	function setValue($elementname, $value = null) {
 		if (isset($value))
 			$this->set($elementname, $value);
-		
+
 		return $this->setElementKey('Value', $elementname, $value);
 	}
-	
+
 	function setValues($values = array()) {
 		if (!$values || !is_array($values) || !count($values))
 			return false;
-		
+
 		foreach($this->elements as $key => $element) {
 			if (!isset($values[$element['Name']]))
 				continue;
-			
+
 			if ($element['ValueType'] == FORM_VALUE_TYPE_ARRAY)
 				$value = explode('|', $values[$element['Name']]);
 			else
 				$value = $values[$element['Name']];
-		
+
 			$this->setValue($element['Name'], $value);
 		}
-		
+
 		return true;
 	}
-	
+
 	function setValueType($elementname, $type = null) {
 		return $this->setElementKey('ValueType', $elementname, $type);
 	}
-	
+
 	function setElementKey($key, $elementname, $value = null, $method = null) {
 		if (!count($this->elements))
 			return false;
-			
+
 		if (!$key)
 			return false;
-			
+
 		if (!isset($elementname))
 			return false;
-		
-		if (isset($value)) {	
+
+		if (isset($value)) {
 			$elementid = $this->getElementID($elementname);
-			
+
 			if (!isset($elementid))
 				return false;
-			
+
 			$elementname = $value;
 		} else {
 			$elementid = $this->getElementID();
 		}
-		
+
 		if (!isset($this->elements[$elementid][$key]))
 			$this->elements[$elementid][$key] = null;
-		
+
 		if ($method == FORM_ELEMENT_ARRAY) {
 			$this->elements[$elementid][$key][] = $elementname;
 			return true;
 		}
-		
+
 		if ($method == FORM_ELEMENT_ADD) {
 			$this->elements[$elementid][$key] .= $elementname;
 			return true;
 		}
-		
+
 		$this->elements[$elementid][$key] = $elementname;
 		return true;
 	}
-	
+
 	static function isInput($element) {
 		if (!isset($element))
 			return false;
-		
+
 		if (!isset($element['Type']))
 			return false;
-		
-		if (in_array($element['Type'], array( 
+
+		if (in_array($element['Type'], array(
 				FORM_INPUT_TYPE_TEXT,
 				FORM_INPUT_TYPE_EMAIL,
 				FORM_INPUT_TYPE_CHECKBOX,
@@ -2021,161 +2125,161 @@ class form {
 				FORM_INPUT_TYPE_EDITOR,
 				FORM_INPUT_TYPE_COLOR)))
 			return true;
-		
+
 		return false;
 	}
-	
+
 	function verify() {
 		if (!$this->submitted())
 			return false;
-		
+
 		$errors = array();
-		
+
 		foreach($this->elements as $elementnum => $element) {
 			$value = $this->get($elementnum);
 			$this->elements[$elementnum]['VerifyResult'] = 0;
-			
+
 			if (!$element['Required'] && !$value &&
 				$element['Type'] != FORM_INPUT_TYPE_CONFIRM)
 				continue;
-			
+
 			if ($element['Type'] == FORM_INPUT_TYPE_EMAIL &&
 				!email::verify($value))
 			{
 				$this->elements[$elementnum]['VerifyResult'] = 1;
 				$errors[] = 5;
-				
+
 			} elseif ($element['Type'] == FORM_INPUT_TYPE_PASSWORD &&
 				$this->verifyPassword &&
 				strlen($value) < MINIMUM_PASSWORD_LENGTH)
 			{
 				$this->elements[$elementnum]['VerifyResult'] = 1;
 				$errors[] = 6;
-				
+
 			} elseif ($element['Type'] == FORM_INPUT_TYPE_VERIFICATION_CODE &&
 				!security::verifyImageCode($value))
 			{
 				$this->elements[$elementnum]['VerifyResult'] = 1;
 				$errors[] = 4;
-				
+
 			} elseif ($element['Type'] == FORM_INPUT_TYPE_CONFIRM &&
-				isset($this->elements[($elementnum-1)]) && 
+				isset($this->elements[($elementnum-1)]) &&
 				$this->get($elementnum-1) != $value)
 			{
 				$this->elements[$elementnum]['VerifyResult'] = 1;
 				$errors[] = 3;
-				
+
 			} elseif ($element['Type'] == FORM_INPUT_TYPE_FILE &&
-				!$value) 
+				!$value)
 			{
 				$this->elements[$elementnum]['VerifyResult'] = 1;
 				$errors[] = 2;
-				
+
 			} elseif (!in_array($element['Type'], array(
 				FORM_INPUT_TYPE_CONFIRM,
 				FORM_OPEN_FRAME_CONTAINER,
 				FORM_CLOSE_FRAME_CONTAINER,
-				FORM_STATIC_TEXT)) && 
-				!$value) 
+				FORM_STATIC_TEXT)) &&
+				!$value)
 			{
 				$this->elements[$elementnum]['VerifyResult'] = 1;
 				$errors[] = 1;
 			}
 		}
-		
+
 		$error = null;
-		
+
 		if (in_array(1, $errors))
 			$error .=
 				(JCORE_VERSION >= '0.6'?
-					__("Fields marked with an asterisk (*) are required."): 
+					__("Fields marked with an asterisk (*) are required."):
 					__("Field(s) marked with an asterisk (*) is/are required.")) .
 				" ";
-		
+
 		if (in_array(2, $errors))
-			$error .= 
+			$error .=
 				__("No file selected to upload.")." ";
-		
+
 		if (in_array(3, $errors))
-			$error .= 
+			$error .=
 				__("Some fields do not match! Please make sure to enter " .
 					"the same value when asked to confirm a prev field.")." ";
-		
+
 		if (in_array(4, $errors))
-			$error .= 
+			$error .=
 				__("Incorrect verification code. " .
 					"Please enter the code shown on the image.")." ";
-		
+
 		if (in_array(5, $errors))
-			$error .= 
+			$error .=
 				__("Invalid email address. Please make sure you enter " .
 					"a valid email address.")." ";
-		
+
 		if (in_array(6, $errors))
-			$error .= 
+			$error .=
 				sprintf(__("The password you entered is too short. Your " .
-					"password must be at least %s characters long."), 
+					"password must be at least %s characters long."),
 					MINIMUM_PASSWORD_LENGTH)." ";
-		
+
 		if ($error) {
-			$error .= 
+			$error .=
 				__("Please review/correct the marked fields in the form below " .
 					"and try again.");
-			
+
 			tooltip::display($error, TOOLTIP_ERROR);
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	function displayElements($elements) {
 		if (!is_array($elements))
 			return false;
-		
+
 		$requiredelements = 0;
 		$totalelements = count($elements)-1;
-		$submitbuttonid = 0;		
-		
+		$submitbuttonid = 0;
+
 		foreach($elements as $elementnum => $element) {
 			if (!isset($element['Type']))
 				continue;
-			
+
 			if ($element['Required'])
 				$requiredelements++;
-			
-			if ($element['Type'] == FORM_INPUT_TYPE_VERIFICATION_CODE && 
-				isset($element['VerifyResult']) && !$element['VerifyResult']) 
+
+			if ($element['Type'] == FORM_INPUT_TYPE_VERIFICATION_CODE &&
+				isset($element['VerifyResult']) && !$element['VerifyResult'])
 			{
-				echo 
+				echo
 					"<input type='hidden' name='".$element['Name']."' " .
 						"value='".htmlspecialchars($element['Value'], ENT_QUOTES)."' />";
-				
+
 				continue;
 			}
-			 
+
 			if (in_array($element['Type'], array(
-				FORM_INPUT_TYPE_HIDDEN, 
-				FORM_INPUT_TYPE_REVIEW))) 
+				FORM_INPUT_TYPE_HIDDEN,
+				FORM_INPUT_TYPE_REVIEW)))
 			{
 				if ($element['ValueType'] == FORM_VALUE_TYPE_ARRAY) {
 					foreach($element['Value'] as $value)
-						echo 
+						echo
 							"<input type='hidden' name='".$element['Name']."[]' " .
 								"value='".htmlspecialchars($value, ENT_QUOTES)."' />";
 				} else {
-					echo 
+					echo
 						"<input type='hidden' name='".$element['Name']."' " .
 							"value='".htmlspecialchars($element['Value'], ENT_QUOTES)."' />";
 				}
-				
+
 				if ($element['Type'] == FORM_INPUT_TYPE_HIDDEN)
 					continue;
 			}
-			 
+
 			if (in_array($element['Type'], array(
 				FORM_INPUT_TYPE_SUBMIT,
-				FORM_INPUT_TYPE_RESET, 
+				FORM_INPUT_TYPE_RESET,
 				FORM_INPUT_TYPE_BUTTON)))
 			{
 				if (isset($elements[($elementnum-1)]) && !in_array(
@@ -2185,12 +2289,12 @@ class form {
 						FORM_INPUT_TYPE_BUTTON)))
 					echo
 						"<div class='clear-both'></div>";
-				
+
 				if (isset($element['AdditionalPreText']) && $element['AdditionalPreText'])
 					echo $element['AdditionalPreText'];
-				
+
 				if ($element['Type'] == FORM_INPUT_TYPE_SUBMIT) {
-					echo 
+					echo
 						"<input type='submit' " .
 							"name='".$element['Name']."' " .
 							"id='button".$element['EntryID']."' " .
@@ -2206,13 +2310,13 @@ class form {
 							 	null) .
 							$element['Attributes'] .
 							" /> ";
-					
+
 					if (!$submitbuttonid)
 						$submitbuttonid = key($element);
 				}
-					
+
 				if ($element['Type'] == FORM_INPUT_TYPE_RESET) {
-					echo 
+					echo
 						"<input type='reset' " .
 							"name='".$element['Name']."' " .
 							"id='button".$element['EntryID']."' " .
@@ -2225,9 +2329,9 @@ class form {
 							$element['Attributes'] .
 							" /> ";
 				}
-					
+
 				if ($element['Type'] == FORM_INPUT_TYPE_BUTTON) {
-					echo 
+					echo
 						"<input type='button' " .
 							"name='".$element['Name']."' " .
 							"id='button".$element['EntryID']."' " .
@@ -2240,13 +2344,13 @@ class form {
 							$element['Attributes'] .
 							" /> ";
 				}
-				
+
 				if (isset($element['AdditionalText']) && $element['AdditionalText'])
 					echo $element['AdditionalText'];
-					
+
 				continue;
 			}
-			
+
 			if ($element['Type'] == FORM_OPEN_FRAME_CONTAINER) {
 				echo
 				"<div tabindex='0' class='fc" .
@@ -2265,25 +2369,25 @@ class form {
 						__($element['Title'], $this->textsDomain) .
 					"</a>" .
 					"<div class='fc-content'>";
-				
+
 				continue;
-			} 
-			
+			}
+
 			if ($element['Type'] == FORM_CLOSE_FRAME_CONTAINER) {
 				echo
 					"</div>" .
 				"</div>";
-				
+
 				continue;
 			}
-			
+
 			if ($element['Type'] == FORM_INPUT_TYPE_CONFIRM) {
 				if (!$elements[($elementnum-1)])
 					continue;
-				
+
 				$element['Type'] = $elements[($elementnum-1)]['Type'];
 			}
-			
+
 			echo
 				"<div class='form-entry" .
 					($element['Name'] || $element['Title']?
@@ -2305,11 +2409,11 @@ class form {
 						" last":
 						null) .
 					"'>";
-			
+
 			if (in_array($element['Type'], array(
 				FORM_INPUT_TYPE_TEXT,
 				FORM_INPUT_TYPE_EMAIL,
-				FORM_INPUT_TYPE_CHECKBOX, 
+				FORM_INPUT_TYPE_CHECKBOX,
 				FORM_INPUT_TYPE_RADIO,
 				FORM_INPUT_TYPE_SELECT,
 				FORM_INPUT_TYPE_MULTISELECT,
@@ -2351,10 +2455,10 @@ class form {
 								null).
 						"</label>" .
 						"<div class='form-entry-content'>";
-					
+
 				if (isset($element['AdditionalPreText']) && $element['AdditionalPreText'])
 					echo $element['AdditionalPreText'];
-					
+
 				if (in_array($element['Type'], array(
 					FORM_INPUT_TYPE_TEXT,
 					FORM_INPUT_TYPE_EMAIL,
@@ -2367,11 +2471,11 @@ class form {
 					FORM_INPUT_TYPE_TEL,
 					FORM_INPUT_TYPE_URL,
 					FORM_INPUT_TYPE_RANGE,
-					FORM_INPUT_TYPE_NUMBER))) 
+					FORM_INPUT_TYPE_NUMBER)))
 				{
-					echo 
+					echo
 						"<input type='";
-					
+
 					if (JCORE_VERSION >= '0.6') {
 						if ($element['Type'] == FORM_INPUT_TYPE_EMAIL)
 							echo "email";
@@ -2397,11 +2501,11 @@ class form {
 							echo "number";
 						else
 							echo "text";
-						
+
 					} else {
 						echo "text";
 					}
-					
+
 					echo
 							"' " .
 							"name='".$element['Name']."' " .
@@ -2434,9 +2538,9 @@ class form {
 							$element['Attributes'] .
 							" /> ";
 				}
-				
+
 				if ($element['Type'] == FORM_INPUT_TYPE_PASSWORD) {
-					echo 
+					echo
 						"<input type='password' " .
 							"name='".$element['Name']."' " .
 							"id='entry".$element['EntryID']."' " .
@@ -2450,7 +2554,7 @@ class form {
 							$element['Attributes'] .
 							" /> ";
 				}
-				
+
 				if ($element['Type'] == FORM_INPUT_TYPE_CHECKBOX) {
 					if (isset($element['Values']) && is_array($element['Values'])) {
 						foreach($element['Values'] as $key => $value) {
@@ -2466,12 +2570,12 @@ class form {
 									 	"title='".htmlspecialchars($element['TooltipText'], ENT_QUOTES)."' ":
 									 	null) .
 									$element['Attributes'] .
-									(is_array($element['Value']) && 
+									(is_array($element['Value']) &&
 									 in_array($value['Value'], $element['Value'])?
 										"checked='checked' ":
 										null) .
-									(isset($element['DisabledValues']) && 
-									 is_array($element['DisabledValues']) && 
+									(isset($element['DisabledValues']) &&
+									 is_array($element['DisabledValues']) &&
 									 in_array($value['Value'], $element['DisabledValues'])?
 										"disabled='disabled' ":
 										null) .
@@ -2481,9 +2585,9 @@ class form {
 											$value['Value']).
 								"</label> ";
 						}
-						
+
 					} else {
-						echo 
+						echo
 							"<input type='checkbox' " .
 								"name='".$element['Name']."' " .
 								"id='entry".$element['EntryID']."' " .
@@ -2500,7 +2604,7 @@ class form {
 								" /> ";
 					}
 				}
-						
+
 				if ($element['Type'] == FORM_INPUT_TYPE_RADIO) {
 					if (isset($element['Values']) && is_array($element['Values'])) {
 						foreach($element['Values'] as $key => $value) {
@@ -2520,7 +2624,7 @@ class form {
 										"checked='checked' ":
 										null) .
 									(isset($element['DisabledValues']) &&
-									 is_array($element['DisabledValues']) && 
+									 is_array($element['DisabledValues']) &&
 									 in_array($value['Value'], $element['DisabledValues'])?
 										"disabled='disabled' ":
 										null) .
@@ -2530,9 +2634,9 @@ class form {
 											$value['Value']).
 								"</label> ";
 						}
-						
+
 					} else {
-						echo 
+						echo
 							"<input type='radio' " .
 								"name='".$element['Name']."' " .
 								"id='entry".$element['EntryID']."' " .
@@ -2549,9 +2653,9 @@ class form {
 								" /> ";
 					}
 				}
-						
+
 				if ($element['Type'] == FORM_INPUT_TYPE_SELECT) {
-					echo 
+					echo
 						"<select " .
 							"name='".$element['Name']."' " .
 							"id='entry".$element['EntryID']."' " .
@@ -2562,7 +2666,7 @@ class form {
 							 	null) .
 							$element['Attributes'] .
 							">";
-					
+
 					if (is_array($element['Values'])) {
 						foreach($element['Values'] as $value) {
 							echo
@@ -2570,8 +2674,8 @@ class form {
 									($value['Value'] == $element['Value']?
 										"selected='selected' ":
 										null) .
-									(isset($element['DisabledValues']) && 
-									 is_array($element['DisabledValues']) && 
+									(isset($element['DisabledValues']) &&
+									 is_array($element['DisabledValues']) &&
 									 in_array($value['Value'], $element['DisabledValues'])?
 										"disabled='disabled' ":
 										null) .
@@ -2582,13 +2686,13 @@ class form {
 								"</option>";
 						}
 					}
-					
+
 					echo
 						"</select>";
 				}
-					
+
 				if ($element['Type'] == FORM_INPUT_TYPE_MULTISELECT) {
-					echo 
+					echo
 						"<select multiple='multiple' " .
 							"name='".$element['Name']."[]' " .
 							"id='entry".$element['EntryID']."' " .
@@ -2599,12 +2703,12 @@ class form {
 							 	null) .
 							$element['Attributes'] .
 							">";
-					
+
 					if (is_array($element['Values'])) {
 						foreach($element['Values'] as $value) {
 							echo
 								"<option value='".$value['Value']."' " .
-									(is_array($element['Value']) && 
+									(is_array($element['Value']) &&
 									 in_array($value['Value'], $element['Value'])?
 										"selected='selected'":
 										null) .
@@ -2615,13 +2719,13 @@ class form {
 								"</option>";
 						}
 					}
-					
+
 					echo
 						"</select>";
 				}
-				
+
 				if ($element['Type'] == FORM_INPUT_TYPE_TEXTAREA) {
-					echo 
+					echo
 						"<textarea " .
 							"rows='5' cols='10' " .
 							"name='".$element['Name']."' " .
@@ -2636,9 +2740,9 @@ class form {
 							htmlspecialchars($element['Value']) .
 						"</textarea>";
 				}
-				
+
 				if ($element['Type'] == FORM_INPUT_TYPE_FILE) {
-					echo 
+					echo
 						($element['Value']?
 							"<b>".$element['Value']."</b><br />":
 							null).
@@ -2653,28 +2757,28 @@ class form {
 							 	null) .
 							$element['Attributes'] . " /> ";
 				}
-				
+
 				if ($element['Type'] == FORM_INPUT_TYPE_REVIEW) {
 					echo "<span class='bold'>";
-					
+
 					if ($element['ValueType'] == FORM_VALUE_TYPE_ARRAY)
 						echo nl2br(implode('; ', $element['Value']));
 					elseif ($element['ValueType'] == FORM_VALUE_TYPE_BOOL)
 						echo ($element['Value']?__("Yes"):__("No"));
 					else
 						echo nl2br($element['Value']);
-					
+
 					echo
 						"</span>";
 				}
-					
+
 				if (isset($element['AdditionalText']) && $element['AdditionalText'])
 					echo $element['AdditionalText'];
-				
+
 				echo
 						"</div>";
 			}
-					
+
 			if ($element['Type'] == FORM_INPUT_TYPE_EDITOR) {
 				echo
 						"<textarea " .
@@ -2687,12 +2791,12 @@ class form {
 							">" .
 							htmlspecialchars($element['Value']) .
 						"</textarea>";
-				
+
 				ckEditor::display("entry".$element['EntryID']);
 			}
-			
+
 			if ($element['Type'] == FORM_INPUT_TYPE_CODE_EDITOR) {
-					echo 
+					echo
 						"<textarea " .
 							"style='width: 98%;'  spellcheck='false' " .
 							"rows='15' cols='10' " .
@@ -2708,72 +2812,72 @@ class form {
 							htmlspecialchars($element['Value']) .
 						"</textarea>";
 			}
-			
+
 			if ($element['Type'] == FORM_STATIC_TEXT) {
 				echo $element['Title'];
 			}
-						
+
 			echo
 				"</div>";
 		}
-		
+
 		if (!isset($this->footer) || $this->footer)
 			echo
 				"<div class='form-footer comment'>";
-				
+
 		$this->displayFooter($requiredelements);
-		
+
 		if (!isset($this->footer))
 			$this->displayDefaultFooter($requiredelements);
-		
+
 		if (!isset($this->footer) || $this->footer)
 			echo
 				"</div>";
 	}
-	
+
 	function displayFooter($requiredelements = 0) {
 		echo
 			$this->footer;
 	}
-	
+
 	function displayDefaultFooter($requiredelements = 0) {
 		if (!$requiredelements)
 			return;
-		
+
 		if (JCORE_VERSION >= '0.6') {
 			echo
 				"<p>";
-			
+
 			if ($requiredelements > 1)
 				echo
 					__("Fields marked with an asterisk (*) are required.");
 			else
 				echo
 					__("Field marked with an asterisk (*) is required.");
-			
+
 			echo
 				"</p>";
-			
+
 			return;
 		}
-		
+
 		echo
 			"<br />" .
 			__("Field(s) marked with an asterisk (*) is/are required.");
 	}
-	
+
 	function display($formdesign = true) {
 		if (!is_array($this->elements))
 			return false;
-		
-		echo 
+
+		echo
 			"<div id='".$this->id."form'" .
 				" class='" .
 				(JCORE_VERSION >= '0.6'?
 					"form ":
 					null) .
 				"rounded-corners'>";
-			
+
 		if ($formdesign)
 			echo
 				"<div class='form-title rounded-corners-top'>" .
@@ -2784,20 +2888,20 @@ class form {
 						"form-content":
 						"form") .
 					" rounded-corners-bottom'>";
-				
+
 		echo
 				"<form action='".$this->action."' method='".$this->method."' " .
 					"enctype='multipart/form-data' ".$this->attributes.">";
-		
+
 		$this->displayElements($this->elements);
-		
+
 		echo
 				"</form>";
-				
+
 		if ($formdesign)
 			echo
 				"</div>"; //#form
-		
+
 		echo
 			"</div>"; //#formid
 	}
@@ -2810,43 +2914,43 @@ class form {
  *  Copyright  2009  Istvan Petres (aka P.I.Julius)
  *  me@pijulius.com
  ****************************************************************************/
- 
+
 define('TOOLTIP_DEFAULT', '');
 define('TOOLTIP_SUCCESS', 'success');
 define('TOOLTIP_ERROR', 'error');
 define('TOOLTIP_NOTIFICATION', 'notification');
- 
+
 class tooltip {
 	static $cache = "";
 	static $caching = false;
-	
+
 	static function caching($onoff) {
 		tooltip::$caching = $onoff;
 	}
-	
+
 	static function construct($message, $type = null) {
 		if (defined($type))
 			$type = constant($type);
-		
-		return 
+
+		return
 			"<div class='tooltip ".$type." rounded-corners'>" .
 				"<span>" .
 				$message .
 				"</span>" .
 			"</div>";
 	}
-	
+
 	static function display($message = null, $type = null) {
 		if (!$message) {
 			echo tooltip::$cache;
 			tooltip::$cache = '';
-			
+
 			return;
 		}
-		
+
 		if (tooltip::$caching)
 			tooltip::$cache .= tooltip::construct($message, $type);
-		else 
+		else
 			echo tooltip::construct($message, $type);
 	}
 }
@@ -2862,7 +2966,7 @@ class tooltip {
 class sql {
 	static $link = null;
 	static $lastQuery = null;
-	
+
 	static function setTimeZone() {
 		sql::run("SET `time_zone` = '".
 			(phpversion() < '5.1.3'?
@@ -2870,20 +2974,20 @@ class sql {
 				date('P')).
 			"'");
 	}
-	
+
 	static function mtimetosec($current, $start) {
 		$exp_current = explode(" ", $current);
 		$exp_start = explode(" ", $start);
-		
+
 		if (!isset($exp_current[1]))
 			$exp_current[1] = 0;
-		
+
 		if (!isset($exp_start[1]))
 			$exp_start[1] = 0;
-		
+
 		$msec = $exp_current[0] - $exp_start[0];
 		$sec = $exp_current[1] - $exp_start[1];
-		
+
 		return number_format($sec+$msec, 5);
 	}
 
@@ -2895,13 +2999,13 @@ class sql {
 	static function selectDB($db) {
 		if (!sql::$link)
 			return false;
-		
-		return @mysql_select_db($db, sql::$link); 
+
+		return @mysql_select_db($db, sql::$link);
 	}
 
 	static function login() {
 		sql::$link = sql::connect(SQL_HOST, SQL_USER, SQL_PASS);
-		
+
 		if (!sql::$link || !sql::selectDB(SQL_DATABASE))
 			exit(
 				"<html>" .
@@ -2921,45 +3025,45 @@ class sql {
 							"We are sorry for the inconvenience and " .
 							"appreciate your patience during this time. " .
 							"Please wait for a few minutes and <a href='%s'>" .
-							"try again</a>."), 
+							"try again</a>."),
 							$_SERVER['REQUEST_URI']) .
 					"</p>" .
 				"</div>" .
 				"</body>" .
 				"</html>");
-	
+
     	// I have no idea why this is needed but unless I set the character set
     	// manually all my Hungarian/Romanian characters are messed up.
-    	
+
 		$character_set = sql::fetch(sql::run(
 			" SHOW VARIABLES LIKE 'character_set_database'"));
-		
+
 		if ($character_set)
 	  		sql::run("SET CHARACTER SET '".$character_set['Value']."'");
-	  	
+
 		sql::run("SET sql_mode = ''");
 	}
-	
+
 	static function prefixTable($query) {
 		if (!defined('SQL_PREFIX') || !SQL_PREFIX)
 			return preg_replace(
-						'/`{([a-zA-Z0-9\_\-]*?)}`/', 
-						'`\1`', 
+						'/`{([a-zA-Z0-9\_\-]*?)}`/',
+						'`\1`',
 						$query);
-			
+
 		return preg_replace(
-					'/`{([a-zA-Z0-9\_\-]*?)}`/', 
-					'`'.SQL_PREFIX.'_\1`', 
+					'/`{([a-zA-Z0-9\_\-]*?)}`/',
+					'`'.SQL_PREFIX.'_\1`',
 					$query);
 	}
-	
+
 	static function regexp2txt($string) {
 		$string = preg_replace('/^\^|\$$/', '', $string);
 		$string = str_replace('.*', '*', $string);
 		$string = str_replace('$|^', ', ', $string);
 		return $string;
 	}
-	
+
 	static function txt2regexp($string) {
 		$string = '^'.$string.'$';
 		$string = preg_replace('/, ?/', ', ', $string);
@@ -2967,64 +3071,64 @@ class sql {
 		$string = str_replace(', ', '$|^', $string);
 		return $string;
 	}
-	
+
 	static function run($query, $debug = false) {
 		if (!trim($query))
 			return false;
-		
+
 		sql::$lastQuery = $query;
-		
+
 		if ($debug)
 			$time_start = microtime(true);
-	
-		if (!sql::$link) 
+
+		if (!sql::$link)
 			sql::login();
-			
+
 		$query = sql::prefixTable($query);
 	    $result = @mysql_query($query, sql::$link);
-	    
+
 	    if (!$result) {
 			sql::displayError();
 	    	return false;
 	    }
-		
-		if (preg_match('/^ *?INSERT/i', $query)) 
+
+		if (preg_match('/^ *?INSERT/i', $query))
 			$result = mysql_insert_id(sql::$link);
-		
+
 		if ($debug) {
 			$time = sql::mtimetosec(microtime(true), $time_start);
-			
+
 			tooltip::display(
 				"Query took: $time seconds<br />" .
 				"MySQL error: ". mysql_error(sql::$link) . "<br /><br />" .
 				$query,
 				TOOLTIP_NOTIFICATION);
 		}
-		
+
 		return $result;
 	}
-	
+
 	static function fetch($result) {
 	    if (!$result)
 	    	return false;
-		
+
 		return mysql_fetch_array($result, MYSQL_ASSOC);
 	}
-	
+
 	static function seek(&$rows, $to = 0) {
 	    if (!$rows)
 	    	return false;
-		
+
 		return mysql_data_seek($rows, $to);
 	}
-	
+
 	static function rows($result) {
 	    if (!$result)
 	    	return false;
-		
+
 		return mysql_num_rows($result);
 	}
-	
+
 	static function affected() {
 		return mysql_affected_rows(sql::$link);
 	}
@@ -3032,40 +3136,40 @@ class sql {
 	static function escape($string) {
 		return mysql_real_escape_string($string, sql::$link);
 	}
-	
+
 	static function count($tblkey = '`ID`', $debug = false) {
 		if ($debug) {
 			$time_start = microtime(true);
 		}
-		
+
 		if (sql::$lastQuery) {
 			$query = sql::$lastQuery;
 			preg_match("/FROM (.*?) (GROUP|ORDER|LIMIT)/is", $query, $found);
-			
+
 			if (stristr($tblkey, 'SELECT')) {
-				$query = 
+				$query =
 					$tblkey .
 					" LIMIT 1";
 			} else {
-				$query = 
+				$query =
 					" SELECT COUNT(".$tblkey.") AS `Rows` FROM " .
 					$found[1] .
 					" LIMIT 1";
 			}
-			
+
 			$query = sql::prefixTable($query);
 			$row = sql::fetch(sql::run($query));
-			
+
 		} else {
 			$query = "SELECT FOUND_ROWS() AS `Rows`";
-			
+
 			$row = sql::fetch(sql::run($query));
 		}
-		
+
 		if ($debug) {
 			$time = sql::mtimetosec(microtime(true), $time_start);
 		}
- 		
+
 		if ($debug) {
 			tooltip::display(
 				"Query took: $time seconds<br />" .
@@ -3073,53 +3177,53 @@ class sql {
 				$query,
 				TOOLTIP_NOTIFICATION);
 		}
-	
-		return $row['Rows'];	
+
+		return $row['Rows'];
 	}
-	
+
 	static function search($search, $fields = array('Title'), $type = 'AND') {
 		if (!trim($search) || !is_array($fields) || !count($fields))
 			return;
-			
+
 		if (strstr($search, ','))
 			$separator = ',';
 		else
 			$separator = ' ';
-		
+
 		$query = null;
 		$keywords = explode($separator, trim($search));
-		
+
 		if (count($keywords) > 21)
 			$keywords = array_slice($keywords, 0, 21);
-		
+
 		foreach($fields as $field) {
 			if ($query)
 				$query .= " OR";
-			
+
 			$keywordsquery = null;
-			
+
 			foreach($keywords as $keyword) {
 				if ($keywordsquery)
 					$keywordsquery .= " ".$type;
-			
+
 				$keywordsquery .= " `".$field."` LIKE '%".
 					sql::escape(trim($keyword))."%'";
 			}
-			
+
 			if ($keywordsquery)
 				$query .= " (".$keywordsquery.") ";
 		}
-		
+
 		if (!$query)
 			return;
-		
+
 		return " AND (".$query.")";
 	}
-	
+
 	static function lastQuery() {
-		return sql::$lastQuery;		
+		return sql::$lastQuery;
 	}
-	
+
 	static function error() {
 		return mysql_error(sql::$link);
 	}
@@ -3131,82 +3235,82 @@ class sql {
 	static function link() {
 		return sql::$link;
 	}
-	
+
 	static function displayError() {
 		$error = sql::error();
-		
+
 		if (!$error)
 			return false;
-		
+
 		tooltip::display(
 			__("SQL Error:"). " " .
 			$error."<br />" .
 			sql::$lastQuery,
 			TOOLTIP_ERROR);
-		
+
 		return $error;
 	}
-	
+
 	static function display($quiet = false) {
 		if (!$quiet)
-			echo 
+			echo
 				"<p>".
 					sql::lastQuery()." " .
 					sprintf(__("(affected rows: %s)"), sql::affected()).
 				"</p>";
-		
+
 		return sql::displayError();
 	}
-} 
- 
+}
+
 // $Id: class.tar.php 2 2005-11-02 18:23:29Z skalpa $
 /*
     package::i.tools
- 
+
     php-downloader    v1.0    -    www.ipunkt.biz
- 
+
     (c)    2002 - www.ipunkt.biz (rok)
 */
- 
+
 /*
 =======================================================================
 Name:
     tar Class
- 
+
 Author:
     Josh Barger <joshb@npt.com>
- 
+
 Description:
     This class reads and writes Tape-Archive (TAR) Files and Gzip
     compressed TAR files, which are mainly used on UNIX systems.
     This class works on both windows AND unix systems, and does
     NOT rely on external applications!! Woohoo!
- 
+
 Usage:
     Copyright (C) 2002  Josh Barger
- 
+
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
     License as published by the Free Software Foundation; either
     version 2.1 of the License, or (at your option) any later version.
- 
+
     This library is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
     Lesser General Public License for more details at:
         http://www.gnu.org/copyleft/lesser.html
- 
+
     If you use this script in your application/website, please
     send me an e-mail letting me know about it :)
- 
+
 Bugs:
     Please report any bugs you might find to my e-mail address
     at joshb@npt.com.  If you have already created a fix/patch
     for the bug, please do send it to me so I can incorporate it into my release.
- 
+
 Version History:
     1.0    04/10/2002    - InitialRelease
- 
+
     2.0    04/11/2002    - Merged both tarReader and tarWriter
                   classes into one
                 - Added support for gzipped tar files
@@ -3230,23 +3334,23 @@ Version History:
                   two underscores
 =======================================================================
 XOOPS changes onokazu <webmaster@xoops.org>
- 
+
     12/25/2002 - Added flag to addFile() function for binary files
- 
+
 =======================================================================
 */
- 
+
 /**
  * tar Class
- * 
+ *
  * This class reads and writes Tape-Archive (TAR) Files and Gzip
  * compressed TAR files, which are mainly used on UNIX systems.
  * This class works on both windows AND unix systems, and does
  * NOT rely on external applications!! Woohoo!
- * 
+ *
  * @author    Josh Barger <joshb@npt.com>
  * @copyright    Copyright (C) 2002  Josh Barger
- * 
+ *
  * @package     kernel
  * @subpackage  core
  */
@@ -3259,7 +3363,7 @@ class tar
     var $isGzipped;
     var $tar_file;
     /**#@-*/
- 
+
     /**#@+
      * Processed Archive Information
      */
@@ -3268,8 +3372,8 @@ class tar
     var $numFiles;
     var $numDirectories;
     /**#@-*/
- 
- 
+
+
     /**
      * Class Constructor -- Does nothing...
      */
@@ -3277,13 +3381,13 @@ class tar
     {
         return true;
     }
- 
+
     /**
      * Computes the unsigned Checksum of a file's header
      * to try to ensure valid file
-     * 
-     * @param    string  $bytestring 
-     * 
+     *
+     * @param    string  $bytestring
+     *
      * @access    private
      */
     function __computeUnsignedChecksum($bytestring)
@@ -3294,18 +3398,18 @@ class tar
         for($i=0; $i<8; $i++)
             $unsigned_chksum -= ord($bytestring[148 + $i]);
         $unsigned_chksum += ord(" ") * 8;
- 
+
         return $unsigned_chksum;
     }
- 
- 
+
+
     /**
      * Converts a NULL padded string to a non-NULL padded string
-     * 
-     * @param   string  $string 
-     * 
-     * @return  string 
-     * 
+     *
+     * @param   string  $string
+     *
+     * @return  string
+     *
      * @access    private
      ***/
     function __parseNullPaddedString($string)
@@ -3313,12 +3417,12 @@ class tar
         $position = strpos($string,chr(0));
         return substr($string,0,$position);
     }
- 
+
     /**
      * This function parses the current TAR file
-     * 
+     *
      * @return  bool    always TRUE
-     * 
+     *
      * @access    private
      ***/
     function __parseTar()
@@ -3331,41 +3435,41 @@ class tar
             // If we read a block of 512 nulls, we are at the end of the archive
             if(substr($this->tar_file,$main_offset,512) == str_repeat(chr(0),512))
                 break;
- 
+
             // Parse file name
             $file_name        = $this->__parseNullPaddedString(substr($this->tar_file,$main_offset,100));
- 
+
             // Parse the file mode
             $file_mode        = substr($this->tar_file,$main_offset + 100,8);
- 
+
             // Parse the file user ID
             $file_uid        = octdec(substr($this->tar_file,$main_offset + 108,8));
- 
+
             // Parse the file group ID
             $file_gid        = octdec(substr($this->tar_file,$main_offset + 116,8));
- 
+
             // Parse the file size
             $file_size        = octdec(substr($this->tar_file,$main_offset + 124,12));
- 
+
             // Parse the file update time - unix timestamp format
             $file_time        = octdec(substr($this->tar_file,$main_offset + 136,12));
- 
+
             // Parse Checksum
             $file_chksum        = octdec(substr($this->tar_file,$main_offset + 148,6));
- 
+
             // Parse user name
             $file_uname        = $this->__parseNullPaddedString(substr($this->tar_file,$main_offset + 265,32));
- 
+
             // Parse Group name
             $file_gname        = $this->__parseNullPaddedString(substr($this->tar_file,$main_offset + 297,32));
- 
+
             // Make sure our file is valid
             if($this->__computeUnsignedChecksum(substr($this->tar_file,$main_offset,512)) != $file_chksum)
                 return false;
- 
+
             // Parse File Contents
             $file_contents        = substr($this->tar_file,$main_offset + 512,$file_size);
- 
+
             /*    ### Unused Header Information ###
                 $activeFile["typeflag"]        = substr($this->tar_file,$main_offset + 156,1);
                 $activeFile["linkname"]        = substr($this->tar_file,$main_offset + 157,100);
@@ -3376,16 +3480,16 @@ class tar
                 $activeFile["prefix"]        = substr($this->tar_file,$main_offset + 345,155);
                 $activeFile["endheader"]    = substr($this->tar_file,$main_offset + 500,12);
             */
-            
+
             $file_type = substr($this->tar_file,$main_offset + 156,1);
-            
+
             if ($file_type == 5) {
                 // Increment number of directories
                 $this->numDirectories++;
- 
+
                 // Create a new directory in our array
                 $activeDir = &$this->directories[];
- 
+
                 // Assign values
                 $activeDir["name"]        = $file_name;
                 $activeDir["mode"]        = $file_mode;
@@ -3395,14 +3499,14 @@ class tar
                 $activeDir["user_name"]        = $file_uname;
                 $activeDir["group_name"]    = $file_gname;
                 $activeDir["checksum"]        = $file_chksum;
-            	
+
             } else {
                 // Increment number of files
                 $this->numFiles++;
- 
+
                 // Create us a new file in our array
                 $activeFile = &$this->files[];
- 
+
                 // Asign Values
                 $activeFile["name"]        = $file_name;
                 $activeFile["mode"]        = $file_mode;
@@ -3415,20 +3519,20 @@ class tar
                 $activeFile["checksum"]        = $file_chksum;
                 $activeFile["file"]        = $file_contents;
             }
- 
+
             // Move our offset the number of blocks we have processed
             $main_offset += 512 + (ceil($file_size / 512) * 512);
         }
- 
+
         return true;
     }
- 
+
     /**
      * Read a non gzipped tar file in for processing.
-     * 
+     *
      * @param   string  $filename   full filename
      * @return  bool    always TRUE
-     * 
+     *
      * @access    private
      ***/
     function __readTar($filename='')
@@ -3436,44 +3540,44 @@ class tar
         // Set the filename to load
         if(!$filename)
             $filename = $this->filename;
- 
+
         // Read in the TAR file
         $fp = fopen($filename,"rb");
         $this->tar_file = fread($fp,filesize($filename));
         fclose($fp);
- 
+
         if($this->tar_file[0] == chr(31) && $this->tar_file[1] == chr(139) && $this->tar_file[2] == chr(8)) {
             if(!function_exists("gzinflate"))
                 return false;
- 
+
             $this->isGzipped = true;
- 
+
             $this->tar_file = gzinflate(substr($this->tar_file,10,-4));
         }
- 
+
         // Parse the TAR file
         $this->__parseTar();
- 
+
         return true;
     }
- 
+
     /**
      * Generates a TAR file from the processed data
-     * 
+     *
      * @return  bool    always TRUE
-     * 
+     *
      * @access    private
      ***/
     function __generateTAR()
     {
         // Clear any data currently in $this->tar_file
         unset($this->tar_file);
- 
+
         // Generate Records for each directory, if we have directories
         if($this->numDirectories > 0) {
             foreach($this->directories as $key => $information) {
                 $header = null;
- 
+
                 // Generate tar header for this directory
                 // Filename, Permissions, UID, GID, size, Time, checksum, typeflag, linkname, magic, version, user name, group name, devmajor, devminor, prefix, end
                 $header .= str_pad($information["name"],100,chr(0));
@@ -3493,7 +3597,7 @@ class tar
                 $header .= str_repeat(chr(0),8);
                 $header .= str_repeat(chr(0),155);
                 $header .= str_repeat(chr(0),12);
- 
+
                 // Compute header checksum
                 $checksum = str_pad(decoct($this->__computeUnsignedChecksum($header)),6,"0",STR_PAD_LEFT);
                 for($i=0; $i<6; $i++) {
@@ -3501,18 +3605,18 @@ class tar
                 }
                 $header[154] = chr(0);
                 $header[155] = chr(32);
- 
+
                 // Add new tar formatted data to tar file contents
                 $this->tar_file .= $header;
             }
         }
- 
+
         // Generate Records for each file, if we have files (We should...)
         if($this->numFiles > 0) {
             $this->tar_file = '';
             foreach($this->files as $key => $information) {
                 $header = null;
- 
+
                 // Generate the TAR header for this file
                 // Filename, Permissions, UID, GID, size, Time, checksum, typeflag, linkname, magic, version, user name, group name, devmajor, devminor, prefix, end
                 $header = str_pad($information["name"],100,chr(0));
@@ -3532,7 +3636,7 @@ class tar
                 $header .= str_repeat(chr(0),8);
                 $header .= str_repeat(chr(0),155);
                 $header .= str_repeat(chr(0),12);
- 
+
                 // Compute header checksum
                 $checksum = str_pad(decoct($this->__computeUnsignedChecksum($header)),6,"0",STR_PAD_LEFT);
                 for($i=0; $i<6; $i++) {
@@ -3540,27 +3644,27 @@ class tar
                 }
                 $header[154] = chr(0);
                 $header[155] = chr(32);
- 
+
                 // Pad file contents to byte count divisible by 512
                 $file_contents = str_pad($information["file"],(ceil($information["size"] / 512) * 512),chr(0));
- 
+
                 // Add new tar formatted data to tar file contents
                 $this->tar_file .= $header . $file_contents;
             }
         }
- 
+
         // Add 512 bytes of NULLs to designate EOF
         $this->tar_file .= str_repeat(chr(0),512);
- 
+
         return true;
     }
- 
- 
+
+
     /**
      * Open a TAR file
-     * 
-     * @param   string  $filename 
-     * @return  bool 
+     *
+     * @param   string  $filename
+     * @return  bool
      ***/
     function openTAR($filename)
     {
@@ -3572,40 +3676,40 @@ class tar
         unset($this->directories);
         unset($this->numFiles);
         unset($this->numDirectories);
- 
+
         // If the tar file doesn't exist...
         if(!file_exists($filename))
             return false;
- 
+
         $this->filename = $filename;
- 
+
         // Parse this file
         $this->__readTar();
- 
+
         return true;
     }
- 
+
     /**
      * Appends a tar file to the end of the currently opened tar file.
-     * 
-     * @param   string  $filename 
-     * @return  bool 
+     *
+     * @param   string  $filename
+     * @return  bool
      ***/
     function appendTar($filename)
     {
         // If the tar file doesn't exist...
         if(!file_exists($filename))
             return false;
- 
+
         $this->__readTar($filename);
- 
+
         return true;
     }
- 
+
     /**
      * Retrieves information about a file in the current tar archive
-     * 
-     * @param   string  $filename 
+     *
+     * @param   string  $filename
      * @return  string  FALSE on fail
      ***/
     function getFile($filename)
@@ -3616,14 +3720,14 @@ class tar
                     return $information;
             }
         }
- 
+
         return false;
     }
- 
+
     /**
      * Retrieves information about a directory in the current tar archive
-     * 
-     * @param   string  $dirname 
+     *
+     * @param   string  $dirname
      * @return  string  FALSE on fail
      ***/
     function getDirectory($dirname)
@@ -3634,15 +3738,15 @@ class tar
                     return $information;
             }
         }
- 
+
         return false;
     }
- 
+
     /**
      * Check if this tar archive contains a specific file
-     * 
-     * @param   string  $filename 
-     * @return  bool 
+     *
+     * @param   string  $filename
+     * @return  bool
      ***/
     function containsFile($filename)
     {
@@ -3654,12 +3758,12 @@ class tar
         }
         return false;
     }
- 
+
     /**
      * Check if this tar archive contains a specific directory
-     * 
-     * @param   string  $dirname 
-     * @return  bool 
+     *
+     * @param   string  $dirname
+     * @return  bool
      ***/
     function containsDirectory($dirname)
     {
@@ -3672,22 +3776,22 @@ class tar
         }
         return false;
     }
- 
+
     /**
      * Add a directory to this tar archive
-     * 
-     * @param   string  $dirname 
-     * @return  bool 
+     *
+     * @param   string  $dirname
+     * @return  bool
      ***/
     function addDirectory($dirname)
     {
         if ( !file_exists($dirname) ) {
             return false;
         }
- 
+
         // Get directory information
         $file_information = stat($dirname);
- 
+
         // Add directory to processed data
         $this->numDirectories++;
         $activeDir        = &$this->directories[];
@@ -3697,16 +3801,16 @@ class tar
         $activeDir["user_id"]    = $file_information["uid"];
         $activeDir["group_id"]    = $file_information["gid"];
         $activeDir["checksum"]    = null;
- 
+
         return true;
     }
- 
+
     /**
      * Add a file to the tar archive
-     * 
-     * @param   string  $filename 
+     *
+     * @param   string  $filename
      * @param   boolean $binary     Binary file?
-     * @return  bool 
+     * @return  bool
      ***/
     function addFile($filename, $binary = false)
     {
@@ -3714,15 +3818,15 @@ class tar
         if ( !file_exists($filename) ) {
             return false;
         }
- 
+
         // Make sure there are no other files in the archive that have this same filename
         if ( $this->containsFile($filename) ) {
             return false;
         }
- 
+
         // Get file information
         $file_information = stat($filename);
- 
+
         // Read in the file's contents
         if (!$binary) {
             $fp = fopen($filename, "r");
@@ -3731,7 +3835,7 @@ class tar
         }
         $file_contents = fread($fp,filesize($filename));
         fclose($fp);
- 
+
         // Add file to processed data
         $this->numFiles++;
         $activeFile            = &$this->files[];
@@ -3745,15 +3849,15 @@ class tar
         $activeFile["user_name"]    = "";
         $activeFile["group_name"]    = "";
         $activeFile["file"]        = trim($file_contents);
- 
+
         return true;
     }
- 
+
     /**
      * Remove a file from the tar archive
-     * 
-     * @param   string  $filename 
-     * @return  bool 
+     *
+     * @param   string  $filename
+     * @return  bool
      ***/
     function removeFile($filename)
     {
@@ -3768,12 +3872,12 @@ class tar
         }
         return false;
     }
- 
+
     /**
      * Remove a directory from the tar archive
-     * 
-     * @param   string  $dirname 
-     * @return  bool 
+     *
+     * @param   string  $dirname
+     * @return  bool
      ***/
     function removeDirectory($dirname)
     {
@@ -3788,92 +3892,92 @@ class tar
         }
         return false;
     }
- 
+
     /**
      * Write the currently loaded tar archive to disk
-     * 
-     * @return  bool 
+     *
+     * @return  bool
      ***/
     function saveTar()
     {
         if ( !$this->filename ) {
             return false;
         }
- 
+
         // Write tar to current file using specified gzip compression
         $this->toTar($this->filename,$this->isGzipped);
- 
+
         return true;
     }
- 
+
     /**
      * Saves tar archive to a different file than the current file
-     * 
-     * @param   string  $filename 
+     *
+     * @param   string  $filename
      * @param   bool    $useGzip    Use GZ compression?
-     * @return  bool 
+     * @return  bool
      ***/
     function toTar($filename,$useGzip)
     {
         if ( !$filename ) {
             return false;
         }
- 
+
         // Encode processed files into TAR file format
         $this->__generateTar();
- 
+
         // GZ Compress the data if we need to
         if ( $useGzip ) {
             // Make sure we have gzip support
             if ( !function_exists("gzencode") ) {
                 return false;
             }
- 
+
             $file = gzencode($this->tar_file);
         } else {
             $file = $this->tar_file;
         }
- 
+
         // Write the TAR file
         $fp = fopen($filename,"wb");
         fwrite($fp,$file);
         fclose($fp);
- 
+
         return true;
     }
- 
+
     /**
      * Sends tar archive to stdout
-     * 
-     * @param   string  $filename 
+     *
+     * @param   string  $filename
      * @param   bool    $useGzip    Use GZ compression?
-     * @return  string 
+     * @return  string
      ***/
     function toTarOutput($filename,$useGzip)
     {
         if ( !$filename ) {
             return false;
         }
- 
+
         // Encode processed files into TAR file format
         $this->__generateTar();
- 
+
         // GZ Compress the data if we need to
         if ( $useGzip ) {
             // Make sure we have gzip support
             if ( !function_exists("gzencode") ) {
                 return false;
             }
- 
+
             $file = gzencode($this->tar_file);
         } else {
             $file = $this->tar_file;
         }
- 
+
         return $file;
     }
 }
- 
+
 /***************************************************************************
  *            installer.class.php
  *
@@ -3904,7 +4008,7 @@ class installer {
 	var $downloadSQLArchiveID;
 	var $keepPackages = false;
 	var $cleanupFiles = null;
-	
+
 	function __construct() {
 		$this->publicFiles = '/' .
 			'^\/sitemap\.xml|' .
@@ -3918,13 +4022,13 @@ class installer {
 			'^\/template\/template\.css|' .
 			'^\/template\/template\.js' .
 			'/i';
-		
+
 		$this->installPath = preg_replace('/[^\/]*?$/', '', $_SERVER['SCRIPT_FILENAME']);
 		$this->installURL = preg_replace('/[^\/]*?$/', '', 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
 		$this->sqlHost = 'localhost';
 		$this->sqlDB = preg_replace('/\..*?$/', '', $_SERVER['HTTP_HOST']).'_DB';
 		$this->sqlUser = 'root';
-		
+
 		$this->sqlTables = array(
 			'ads',
 			'bfprotection',
@@ -3963,29 +4067,29 @@ class installer {
 			'userpermissions',
 			'userrequests',
 			'users');
-		
+
 		$this->serverPath = '/var/www/html/jcore/';
 		$this->serverURL = JCORE_URL;
-		
+
 		if (isset($_COOKIE['jCoreInstaller']['Downloads']['Server']))
 			$this->downloadServerID = $_COOKIE['jCoreInstaller']['Downloads']['Server'];
-		
+
 		if (isset($_COOKIE['jCoreInstaller']['Downloads']['Client']))
 			$this->downloadClientID = $_COOKIE['jCoreInstaller']['Downloads']['Client'];
-		
+
 		if (isset($_COOKIE['jCoreInstaller']['Downloads']['Installer']))
 			$this->downloadInstallerID = $_COOKIE['jCoreInstaller']['Downloads']['Installer'];
-			
+
 		if (isset($_COOKIE['jCoreInstaller']['Downloads']['SQL']))
 			$this->downloadSQLID = $_COOKIE['jCoreInstaller']['Downloads']['SQL'];
-		
+
 		if (isset($_COOKIE['jCoreInstaller']['Downloads']['SQLArchive']))
 			$this->downloadSQLArchiveID = $_COOKIE['jCoreInstaller']['Downloads']['SQLArchive'];
 	}
-	
+
 	function downloadCheckTimeOut($fp, $title) {
 		$status = socket_get_status($fp);
-		
+
 		if ($status["timed_out"]) {
 			echo
 				"<script type='text/javascript'>" .
@@ -3993,9 +4097,9 @@ class installer {
 							__("FAILED") .
 						"</b> (".__("connection timed out").")<br />');" .
 				"</script>";
-			
+
 			url::flushDisplay();
-			
+
 			tooltip::display(
 				__("The download for ".$title." timed out. Please " .
 					"make sure you are still connected to the internet and " .
@@ -4006,16 +4110,16 @@ class installer {
 					"<a href='".JCORE_URL."contact' target='_blank'>" .
 					"contact jCore</a> with this error and your system setup."),
 				'error');
-		
+
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	function download($downloadid, $title, $savefile = true) {
 		$downloadstatusclass = "download-".strtolower(str_replace(' ', '-', $title));
-		
+
 		echo
 			"<script type='text/javascript'>" .
 				"jQuery('#jcoreinstallerprocess').append('" .
@@ -4025,13 +4129,13 @@ class installer {
 						"</span> ") .
 					"');" .
 			"</script>";
-						
+
 		url::flushDisplay();
-		
+
 		$fp = @fsockopen(
 				'jcore.net',
 				80, $errno, $errstr);
-				
+
 		if (!$fp) {
 			echo
 				"<script type='text/javascript'>" .
@@ -4039,9 +4143,9 @@ class installer {
 							__("FAILED") .
 						"</b> (".$errno.": ".$errstr.")<br />');" .
 				"</script>";
-			
+
 			url::flushDisplay();
-			
+
 			tooltip::display(
 				__("Couldn't start the downloading proccess. Please " .
 					"make sure you are connected to the internet and " .
@@ -4052,66 +4156,66 @@ class installer {
 					"<a href='".JCORE_URL."contact' target='_blank'>" .
 					"contact jCore</a> with this error and your system setup."),
 				'error');
-			
+
 			return false;
 		}
-		
+
 		echo
 			"<script type='text/javascript'>" .
 				"jQuery('#jcoreinstallerprocess .".$downloadstatusclass."').html('" .
 						__("sending request")."');" .
 			"</script>";
-		
+
 		url::flushDisplay();
-		
+
 		stream_set_timeout($fp, 10);
-		
+
 		$filename = null;
 		$filesize = null;
 		$header = null;
 		$content = null;
-		
+
 		if ((int)$downloadid)
-			$geturl = 
+			$geturl =
 				"?request=modules/filesharing/filesharingattachments" .
 				"&download=".$downloadid .
 				"&downloading=1&ajax=1";
 		else
 			$geturl = $downloadid;
-		
-		@fwrite($fp, 
+
+		@fwrite($fp,
 			"GET /".$geturl." HTTP/1.1\r\n" .
 			"Host: jcore.net\r\n" .
 			"Content-type: text/html\r\n" .
 			"Connection: close\r\n\r\n");
-			
+
 		while($data = @fgets($fp)) {
 			if ($this->downloadCheckTimeOut($fp, $title))
 				return false;
-			
+
 			if($data == "\r\n")
 				break;
-				
+
 			$header .= $data;
 		}
-		
-		preg_match('/filename="(.*?)"/i', 
+
+		preg_match('/filename="(.*?)"/i',
 			$header, $matches);
-			
+
 		if (isset($matches[1]))
 			$filename = $matches[1];
-		
-		preg_match('/Content-Length:(.*)/i', 
+
+		preg_match('/Content-Length:(.*)/i',
 			$header, $matches);
-			
+
 		if (isset($matches[1]))
 			$filesize = (int)$matches[1];
-		
+
 		$fl = null;
-		
+
 		if ($filename && !@file_exists($this->installPath.$filename)) {
 			preg_match('/^(.*)([0-9]+\.[0-9]+)(.*?)$/', $filename, $matches);
-			
+
 			if (isset($matches[1]) && isset($matches[2]) && isset($matches[3])) {
 				foreach(scandir($this->installPath) as $dfile) {
 					if (preg_match('/'.preg_quote($matches[1]).'[0-9]+\.[0-9]+'.preg_quote($matches[3]).'/', $dfile)) {
@@ -4121,34 +4225,34 @@ class installer {
 				}
 			}
 		}
-		
+
 		if ($filename && @file_exists($this->installPath.$filename)) {
 			echo
 				"<script type='text/javascript'>" .
 					"jQuery('#jcoreinstallerprocess .".$downloadstatusclass."').html('');" .
 				"</script>";
-			
+
 			echo
 				"<script type='text/javascript'>" .
 					"jQuery('#jcoreinstallerprocess').append('<b>" .
 							__("OK") .
 						"</b> (".files::humanSize(@filesize($this->installPath.$filename))." cached)<br />');" .
 				"</script>";
-			
+
 			url::flushDisplay();
-			
+
 			@fclose($fp);
 			$this->cleanupFiles[$filename] = $filename;
-			
+
 			if ($savefile)
 				return $filename;
-			
+
 			return files::get($this->installPath.$filename);
 		}
-		
+
 		if ($savefile && $filename) {
 			$fl = @fopen($this->installPath.$filename, 'w');
-			
+
 			if (!$fl) {
 				echo
 					"<script type='text/javascript'>" .
@@ -4156,9 +4260,9 @@ class installer {
 								__("FAILED") .
 							"</b><br />');" .
 					"</script>";
-				
+
 				url::flushDisplay();
-				
+
 				tooltip::display(
 					sprintf(
 					__("Couldn't create local file at \"<b>%s</b>\". Please make sure " .
@@ -4169,61 +4273,61 @@ class installer {
 						"contact jCore</a> with this error and your system setup."),
 						$this->installPath),
 					'error');
-			
+
 				return false;
 			}
 		}
-		
+
     	if (!$savefile || !$fl)
 			@fgets($fp);
-		
+
 		$time = null;
 		$percentage = 0;
 		$downloadsize = 0;
-		
+
 		while (true) {
 			if ($filesize)
 				$percentage = round($downloadsize * 100 / $filesize);
-			
+
 			if ($this->downloadCheckTimeOut($fp, $title))
 				return false;
-				
+
 			if (!$time || time() - $time > 1) {
 				echo
 					"<script type='text/javascript'>" .
 						"jQuery('#jcoreinstallerprocess .".$downloadstatusclass."').html('" .
 								$percentage."%');" .
 					"</script>";
-				
+
 				$time = time();
 				url::flushDisplay();
 			}
-			
+
    			$data = @fread($fp, 8192);
    			$downloadsize += strlen($data);
-   			
+
     		if (strlen($data) == 0) {
 				echo
 					"<script type='text/javascript'>" .
 						"jQuery('#jcoreinstallerprocess .".$downloadstatusclass."').html('" .
 								$percentage."%');" .
 					"</script>";
-				
+
 				url::flushDisplay();
    	    		break;
     		}
-   	    	
+
    	    	if ($fl)
    	    		@fwrite($fl, $data, 8192);
-   	    	else	
+   	    	else
 	   	    	$content .= $data;
 		}
-		
+
 		fclose($fp);
-		
+
 		if ($fl)
 			fclose($fl);
-		
+
 		if ($savefile && !$filename) {
 			echo
 				"<script type='text/javascript'>" .
@@ -4231,9 +4335,9 @@ class installer {
 							__("FAILED") .
 						"</b><br />');" .
 				"</script>";
-			
+
 			url::flushDisplay();
-			
+
 			tooltip::display(
 				sprintf(
 				__($title." couldn't be completed. The returned response by jCore.net " .
@@ -4244,30 +4348,30 @@ class installer {
 					"contact jCore</a> with this error and your system setup."),
 					$this->installPath),
 				'error');
-			
+
 			echo substr(preg_replace('/\r\n0\r\n/', '', $content),
 					0, 1024);
-			
+
 			return false;
 		}
-		
+
 		echo
 			"<script type='text/javascript'>" .
 				"jQuery('#jcoreinstallerprocess').append('<b>" .
 						__("OK") .
 					"</b> (".files::humanSize($downloadsize).")<br />');" .
 			"</script>";
-		
+
 		url::flushDisplay();
-		
+
 		if ($savefile) {
 			$this->cleanupFiles[$filename] = $filename;
 			return $filename;
 		}
-		
+
 		return $content;
 	}
-	
+
 	function decompress($file, $title) {
 		if (!@file_exists($this->installPath.$file)) {
 			tooltip::display(
@@ -4278,17 +4382,17 @@ class installer {
 					"<a href='".JCORE_URL."contact' target='_blank'>" .
 					"contact jCore</a> with this error and your system setup."),
 				'error');
-			
+
 			return false;
 		}
-		
+
 		echo
 			"<script type='text/javascript'>" .
 				"jQuery('#jcoreinstallerprocess').append('" .
 						__("Uncompressing ".$title."...") .
 					"');" .
 			"</script>";
-		
+
 		if ($this->checkOutOfMemory($this->installPath.$file)) {
 			echo
 				"<script type='text/javascript'>" .
@@ -4298,37 +4402,37 @@ class installer {
 							"manually or increment the PHP memory limit.") .
 						")<br />');" .
 				"</script>";
-			
+
 			return false;
 		}
-		
+
 		url::flushDisplay();
-		
+
 		$tar = new tar();
 		$tar->openTar($this->installPath.$file);
-		
+
 		echo
 			"<script type='text/javascript'>" .
 				"jQuery('#jcoreinstallerprocess').append('<b>" .
 						__("OK") .
 					"</b><br />');" .
 			"</script>";
-		
+
 		echo
 			"<script type='text/javascript'>" .
 				"jQuery('#jcoreinstallerprocess').append('" .
 						__("Creating directories...") .
 					"');" .
 			"</script>";
-						
+
 		url::flushDisplay();
-		
+
 		foreach($tar->directories as $directory) {
 			$directory['name'] = str_replace(
-				substr($file, 0, -7), 
+				substr($file, 0, -7),
 				'', $directory['name']);
-			
-			if (@is_dir($this->installPath.$directory['name']) && 
+
+			if (@is_dir($this->installPath.$directory['name']) &&
 				!@is_writable($this->installPath.$directory['name']))
 			{
 				echo
@@ -4337,41 +4441,41 @@ class installer {
 								__("FAILED") .
 							"</b> (".$directory['name']." ".__("not writable").")<br />');" .
 					"</script>";
-		
+
 				url::flushDisplay();
 				return false;
-		
+
 			} else {
 				@mkdir($this->installPath.$directory['name']);
 				@chmod($this->installPath.$directory['name'], 0755);
 			}
-			
+
 			if (preg_match($this->publicFiles, $directory['name']))
 				@chmod($this->installPath.$directory['name'], 0757);
 		}
-		
+
 		echo
 			"<script type='text/javascript'>" .
 				"jQuery('#jcoreinstallerprocess').append('<b>" .
 						__("OK") .
 					"</b><br />');" .
 			"</script>";
-		
+
 		echo
 			"<script type='text/javascript'>" .
 				"jQuery('#jcoreinstallerprocess').append('" .
 						__("Writing files...") .
 					"');" .
 			"</script>";
-						
+
 		url::flushDisplay();
-		
+
 		foreach($tar->files as $tarfile) {
 			$tarfile['name'] = str_replace(
-				substr($file, 0, -7), 
+				substr($file, 0, -7),
 				'', $tarfile['name']);
-			
-			if (@is_file($this->installPath.$tarfile['name']) && 
+
+			if (@is_file($this->installPath.$tarfile['name']) &&
 				!@is_writable($this->installPath.$tarfile['name']))
 			{
 				echo
@@ -4380,77 +4484,77 @@ class installer {
 								__("FAILED") .
 							"</b> (".$tarfile['name']." ".__("not writable").")<br />');" .
 					"</script>";
-		
+
 				url::flushDisplay();
 				return false;
-		
+
 			} else {
 				if ($fp = @fopen($this->installPath.$tarfile['name'], 'w')) {
 					@fwrite($fp, $tarfile['file']);
 					fclose($fp);
-				
+
 					@chmod($this->installPath.$tarfile['name'], 0644);
-					
+
 					if (preg_match($this->publicFiles, $tarfile['name']))
 						@chmod($this->installPath.$tarfile['name'], 0646);
 				}
 			}
 		}
-		
+
 		echo
 			"<script type='text/javascript'>" .
 				"jQuery('#jcoreinstallerprocess').append('<b>" .
 						__("OK") .
 					"</b><br />');" .
 			"</script>";
-		
+
 		url::flushDisplay();
-		
+
 		unset($tar);
-		
+
 		return true;
 	}
-	
+
 	function checkOutOfMemory($file) {
 		$memoryneeded = round(@filesize($file)*6);
-		
+
 		$availablememory = $this->iniGet('memory_limit', true);
-		
+
 		if (!$availablememory)
 			return false;
-			
+
 		if ($memoryneeded+memory_get_usage() < $availablememory)
 			return false;
-			
+
 		return true;
 	}
-	
+
 	function checkExtractedSystem() {
 		if (!@is_file($this->installPath.'config.inc.php') &&
 			!@is_file($this->installPath.'jcore.inc.php'))
 			return false;
-		
+
 		if (@is_file($this->installPath.'config.inc.php')) {
 			$config = files::get($this->installPath.'config.inc.php');
-			
+
 			if (!preg_match('/localhost.*?yourdomain_DB.*?yourdomain_mysqluser.*?mysqlpass/s', $config))
 				return false;
-			
+
 			if (!preg_match('/JCORE_VERSION.*?([0-9\.]+)(\'|"| )/i', $config, $matches))
 				return false;
-			
+
 			if (!isset($matches[1]) || !$matches[1])
 				return false;
-			
+
 			$sqlfile = '';
 			if (@is_file($this->installPath.'jCore-'.$matches[1].'.sql'))
 				$sqlfile = 'jCore-'.$matches[1].'.sql';
 			elseif (@is_file($this->installPath.'jCore.sql'))
 				$sqlfile = 'jCore.sql';
-			
+
 			if ($sqlfile)
 				$this->cleanupFiles[$sqlfile] = $sqlfile;
-			
+
 			return array(
 				'Type' => 'Server',
 				'Name' => 'jCore Server',
@@ -4458,44 +4562,44 @@ class installer {
 				'ConfigFile' => 'config.inc.php',
 				'SQLFile' => $sqlfile);
 		}
-		
+
 		$config = files::get($this->installPath.'jcore.inc.php');
-		
+
 		if (!preg_match('/localhost.*?yourclient_DB.*?yourclient_mysqlusername.*?mysqlpassword/s', $config))
 			return false;
-		
+
 		if (!preg_match('/JCORE_VERSION.*?([0-9\.]+)(\'|"| )/i', $config, $matches))
 			return false;
-		
+
 		if (!isset($matches[1]) || !$matches[1])
 			return false;
-		
+
 		$sqlfile = '';
 		if (@is_file($this->installPath.'jCore-'.$matches[1].'.sql'))
 			$sqlfile = 'jCore-'.$matches[1].'.sql';
 		elseif (@is_file($this->installPath.'jCore.sql'))
 			$sqlfile = 'jCore.sql';
-		
+
 		if ($sqlfile)
 			$this->cleanupFiles[$sqlfile] = $sqlfile;
-		
+
 		return array(
 			'Type' => 'Client',
 			'Name' => 'jCore Client',
 			'Version' => $matches[1],
-			'ConfigFile' => 'jcore.inc.php', 
+			'ConfigFile' => 'jcore.inc.php',
 			'SQLFile' => $sqlfile);
 	}
-	
+
 	function iniGet($var, $parse = false) {
 		if (!$var)
 			return null;
-		
+
 		$value = ini_get($var);
-		
+
 		if (!$parse)
 			return $value;
-		
+
 		if (!is_numeric($value)) {
     		if (strpos($value, 'M') !== false)
         		$value = intval($value)*1024*1024;
@@ -4504,26 +4608,26 @@ class installer {
     		elseif (strpos($value, 'G') !== false)
         		$value = intval($value)*1024*1024*1024;
 		}
-		
+
 		return $value;
 	}
-	
+
 	function modRewrite() {
 		$url = parse_url($this->installURL);
 		@list($host, $port) = explode(':', $url['host']);
-		
+
 		if (!(int)$port)
 			$port = 80;
-		
+
 		$fp = @fsockopen(
 				$host, $port, $errno, $errstr);
-		
+
 		if (!$fp)
 			return false;
-		
+
 		stream_set_timeout($fp, 10);
-		
-		@fwrite($fp, 
+
+		@fwrite($fp,
 			"GET " .
 				(isset($url['path'])?
 					$url['path']:
@@ -4532,25 +4636,25 @@ class installer {
 			"Host: ".$host."\r\n" .
 			"Content-type: text/html\r\n" .
 			"Connection: close\r\n\r\n");
-		
+
 		$header = null;
 		while($data = @fgets($fp)) {
 			$status = socket_get_status($fp);
-			
+
 			if ($status["timed_out"])
 				return false;
-			
+
 			if($data == "\r\n")
 				break;
-				
+
 			$header .= $data;
 		}
-		
+
 		fclose($fp);
-		
+
 		return preg_match('/HTTP.*? 200 OK/i', $header);
 	}
-	
+
 	function runSQL($sqlqueries, $title) {
 		echo
 			"<script type='text/javascript'>" .
@@ -4558,25 +4662,25 @@ class installer {
 						__("Running SQL queries...") .
 					"');" .
 			"</script>";
-						
+
 		url::flushDisplay();
-		
+
 		define('SQL_PREFIX', $this->sqlPrefix);
 		$queries = preg_split('/;(\r\n|\n)/', $sqlqueries);
-		
+
 		foreach($queries as $query) {
 			$query = preg_replace(
 				'/(((DROP|CREATE|ALTER) TABLE|INSERT INTO|UPDATE|DELETE|SELECT[ \r\n\t]+.*?[ \r\n\t]+FROM) [a-zA-Z0-9\_\- ]*?)`([a-zA-Z0-9\_\-]*?)`/s',
 				'\1`{\4}`',
 				$query);
-			
+
 			$query = preg_replace(
 				'/(RENAME TABLE [a-zA-Z0-9\_\- ]*?)`([a-zA-Z0-9\_\-]*?)`([ \r\n\t]+TO[ \r\n\t]+)`([a-zA-Z0-9\_\-]*?)`/s',
 				'\1`{\2}`\3`{\4}`',
 				$query);
-			
+
 			sql::run($query);
-			
+
 			if (sql::error()) {
 				echo
 					"<script type='text/javascript'>" .
@@ -4584,36 +4688,36 @@ class installer {
 								__("FAILED") .
 							"</b> (please see error) ');" .
 					"</script>";
-				
+
 				url::flushDisplay();
 				return false;
 			}
 		}
-		
+
 		echo
 			"<script type='text/javascript'>" .
 				"jQuery('#jcoreinstallerprocess').append('<b>" .
 						__("OK") .
 					"</b><br />');" .
 			"</script>";
-		
+
 		return true;
 	}
-	
+
 	function cleanup($files) {
 		if (!$files || !is_array($files))
 			return true;
-		
+
 		echo
 			"<script type='text/javascript'>" .
 				"jQuery('#jcoreinstallerprocess').append('" .
 						__("Deleting packages (cleanup)...") .
 					"');" .
 			"</script>";
-					
+
 		url::flushDisplay();
 		$errors = false;
-		
+
 		foreach($files as $file) {
 			if (!@unlink($this->installPath.$file)) {
 				echo
@@ -4622,12 +4726,12 @@ class installer {
 								__("FAILED") .
 							"</b> (".$file.") ');" .
 					"</script>";
-				
+
 				url::flushDisplay();
 				$errors[] = $file;
 			}
 		}
-		
+
 		echo
 			"<script type='text/javascript'>" .
 				"jQuery('#jcoreinstallerprocess').append('" .
@@ -4636,26 +4740,26 @@ class installer {
 						"<b>".__("OK")."</b>") .
 					"<br />');" .
 			"</script>";
-		
+
 		url::flushDisplay();
 		return true;
 	}
-	
+
 	function check() {
 		tooltip::display(
 			"<span id='jcoreinstallerprocess'></span>",
 			'notification');
-			
-		// Checking PHP Version	
+
+		// Checking PHP Version
 		echo
 			"<script type='text/javascript'>" .
 				"jQuery('#jcoreinstallerprocess').append('" .
 						__("Checking PHP version...") .
 					"');" .
 			"</script>";
-						
+
 		url::flushDisplay();
-		
+
 		if (phpversion() < '5.1') {
 			echo
 				"<script type='text/javascript'>" .
@@ -4665,9 +4769,9 @@ class installer {
 						__("you may continue but jCore was only tested with PHP >= 5.1") .
 						")<br />');" .
 				"</script>";
-			
+
 			url::flushDisplay();
-			
+
 		} else {
 			echo
 				"<script type='text/javascript'>" .
@@ -4675,10 +4779,10 @@ class installer {
 							__("OK") .
 						"</b> (".phpversion().")<br />');" .
 				"</script>";
-			
+
 			url::flushDisplay();
 		}
-		
+
 		// Checking MySQL Version
 		echo
 			"<script type='text/javascript'>" .
@@ -4686,9 +4790,9 @@ class installer {
 						__("Checking MySQL version...") .
 					"');" .
 			"</script>";
-						
+
 		url::flushDisplay();
-		
+
 		if (mysql_get_client_info() < '4.1') {
 			echo
 				"<script type='text/javascript'>" .
@@ -4698,9 +4802,9 @@ class installer {
 						__("you may continue but jCore was only tested with MySQL >= 4.1").
 						")<br />');" .
 				"</script>";
-			
+
 			url::flushDisplay();
-			
+
 		} else {
 			echo
 				"<script type='text/javascript'>" .
@@ -4708,10 +4812,10 @@ class installer {
 							__("OK") .
 						"</b> (".mysql_get_client_info().")<br />');" .
 				"</script>";
-			
+
 			url::flushDisplay();
 		}
-		
+
 		// Checking for GD Extension
 		echo
 			"<script type='text/javascript'>" .
@@ -4719,9 +4823,9 @@ class installer {
 						__("Checking for PHP GD...") .
 					"');" .
 			"</script>";
-						
+
 		url::flushDisplay();
-		
+
 		if (!extension_loaded('gd')) {
 			echo
 				"<script type='text/javascript'>" .
@@ -4729,9 +4833,9 @@ class installer {
 							__("FAILED") .
 						"</b> (".__("not implemented").")<br />');" .
 				"</script>";
-			
+
 			url::flushDisplay();
-			
+
 			tooltip::display(
 				__("No build in GD support found for PHP. Please " .
 					"<a href='http://php.net/manual/en/book.image.php' target='_blank'>" .
@@ -4739,25 +4843,25 @@ class installer {
 					"activate the extension in WAMP enviroments using " .
 					"PHP -> PHP Extensions -> php_gd."),
 				'error');
-		
+
 			return false;
 		}
-		
+
 		echo
 			"<script type='text/javascript'>" .
 				"jQuery('#jcoreinstallerprocess').append('<b>" .
 						__("OK") .
 					"</b> (".__("implemented").")<br />');" .
 			"</script>";
-		
+
 		url::flushDisplay();
-		
+
 		// Check for jCore versions
 		$padcontent = $this->download(
 			'pad.xml', 'Checking for latest jCore versions', false);
-			
+
 		preg_match('/<Program_Versions>(.*?)<\/Program_Versions>/is', $padcontent, $matches);
-		
+
 		if (!isset($matches[1])) {
 			tooltip::display(
 				__("Something went wrong while downloading the PAD file from jCore.net " .
@@ -4767,14 +4871,14 @@ class installer {
 					"<a href='".JCORE_URL."contact' target='_blank'>" .
 					"contact jCore</a> with this error and your system setup."),
 				'error');
-		
+
 			return false;
 		}
-		
+
 		preg_match_all('/<(.*?)>(.*?)<\/\1>/is', $matches[1], $matches);
-		
+
 		foreach($matches[1] as $key => $value) {
-			echo	
+			echo
 				"<iframe src='".url::uri('ALL')."?cookie=".
 					urlencode("[Versions][".$value."]")."&amp;cookievalue=".
 					urlencode($matches[2][$key])."' style='display: none;'>" .
@@ -4784,9 +4888,9 @@ class installer {
 						$value." ".$matches[2][$key]."');" .
 				"</script>";
 		}
-		
+
 		preg_match('/<Program_Downloads>(.*?)<\/Program_Downloads>/is', $padcontent, $matches);
-		
+
 		if (!isset($matches[1])) {
 			tooltip::display(
 				__("Something went wrong while downloading the PAD file from jCore.net " .
@@ -4796,65 +4900,65 @@ class installer {
 					"<a href='".JCORE_URL."contact' target='_blank'>" .
 					"contact jCore</a> with this error and your system setup."),
 				'error');
-		
+
 			return false;
 		}
-		
+
 		preg_match_all('/<(.*?)>(.*?)<\/\1>/is', $matches[1], $matches);
-		
+
 		foreach($matches[1] as $key => $value) {
 			if (preg_match('/SQLArchive/', $value)) {
-				
+
 				preg_match_all('/<(.*?)>(.*?)<\/\1>/is', $matches[2][$key], $archivematches);
-				
+
 				foreach($archivematches[1] as $key => $value) {
-					echo	
+					echo
 						"<iframe src='".url::uri('ALL')."?cookie=".
 							urlencode("[Downloads][SQLArchive][".$value."]")."&amp;cookievalue=".
 							urlencode($archivematches[2][$key])."' style='display: none;'>" .
 						"</iframe>";
-					
+
 					$this->downloadSQLArchiveID[$archivematches[1][$key]] = $archivematches[2][$key];
 				}
-				
+
 				continue;
 			}
-			
-			echo	
+
+			echo
 				"<iframe src='".url::uri('ALL')."?cookie=".
 					urlencode("[Downloads][".$value."]")."&amp;cookievalue=".
 					urlencode($matches[2][$key])."' style='display: none;'>" .
 				"</iframe>";
-				
+
 			if (preg_match('/Server/', $value))
 				$this->downloadServerID = $matches[2][$key];
-				
+
 			if (preg_match('/Client/', $value))
 				$this->downloadClientID = $matches[2][$key];
-				
+
 			if (preg_match('/Installer/', $value))
 				$this->downloadInstallerID = $matches[2][$key];
-				
+
 			if (preg_match('/SQL/', $value))
 				$this->downloadSQLID = $matches[2][$key];
 		}
 	}
-	
+
 	function install() {
 		$sqlqueries = null;
 		$extractedsystem = $this->checkExtractedSystem();
-		
+
 		if ($extractedsystem) {
 			$this->install ==  strtolower($extractedsystem['Type']);
-			
+
 			if (isset($this->downloadSQLArchiveID['v'.str_replace('.','', $extractedsystem['Version'])]) &&
 				$this->downloadSQLArchiveID['v'.str_replace('.','', $extractedsystem['Version'])])
 			{
-				$this->downloadSQLID = 
+				$this->downloadSQLID =
 					$this->downloadSQLArchiveID['v'.str_replace('.','', $extractedsystem['Version'])];
 			}
 		}
-		
+
 		if (!$extractedsystem && !$this->downloadServerID) {
 			tooltip::display(
 				__("jCore Server download ID couldn't be found. This usually means " .
@@ -4864,11 +4968,11 @@ class installer {
 					"<a href='".JCORE_URL."contact' target='_blank'>" .
 					"contact jCore</a> with this error and your system setup."),
 				'error');
-			
+
 			$this->error = 1;
 			return false;
 		}
-				
+
 		if (!$extractedsystem && !$this->downloadClientID) {
 			tooltip::display(
 				__("jCore Client download ID couldn't be found. This usually means " .
@@ -4878,11 +4982,11 @@ class installer {
 					"<a href='".JCORE_URL."contact' target='_blank'>" .
 					"contact jCore</a> with this error and your system setup."),
 				'error');
-			
+
 			$this->error = 1;
 			return false;
 		}
-		
+
 		if (!$this->downloadSQLID) {
 			tooltip::display(
 				__("jCore SQL download ID couldn't be found. This usually means " .
@@ -4892,31 +4996,31 @@ class installer {
 					"<a href='".JCORE_URL."contact' target='_blank'>" .
 					"contact jCore</a> with this error and your system setup."),
 				'error');
-			
+
 			$this->error = 1;
 			return false;
 		}
-				
+
 		if (preg_match('/[^a-zA-Z0-9\.\_\-]/', $this->sqlDB)) {
 			tooltip::display(
 				__("Invalid SQL database specified! SQL database " .
 					"may consist of a-z, 0-9 and underscores only."),
 				'error');
-			
+
 			$this->error = 1;
 			return false;
 		}
-				
+
 		if (preg_match('/[^a-zA-Z0-9\.\_\-]/', $this->sqlPrefix)) {
 			tooltip::display(
 				__("Invalid SQL table prefix specified! SQL table prefix " .
 					"may consist of a-z, 0-9 and underscores only."),
 				'error');
-			
+
 			$this->error = 1;
 			return false;
 		}
-				
+
 		if (!$extractedsystem && !@is_writable($this->installPath)) {
 			tooltip::display(
 				__("Please give write access to the install " .
@@ -4924,14 +5028,14 @@ class installer {
 					"Install path currently set to: ").
 					"<b>".$this->installPath."</b>",
 				'error');
-			
+
 			$this->error = 2;
 			return false;
 		}
-		
-		if (!$extractedsystem && !$this->installOverwrite && 
+
+		if (!$extractedsystem && !$this->installOverwrite &&
 			(@is_file($this->installPath.'config.inc.php') ||
-			 @is_file($this->installPath.'jcore.inc.php'))) 
+			 @is_file($this->installPath.'jcore.inc.php')))
 		{
 			tooltip::display(
 				sprintf(
@@ -4944,22 +5048,22 @@ class installer {
 						"made to the existing site will also be overwritten."),
 					$this->installPath),
 				'error');
-			
+
 			$this->error = 3;
 			return false;
 		}
-		
+
 		if ($extractedsystem && !@is_writable($this->installPath.$extractedsystem['ConfigFile'])) {
 			tooltip::display(
 				__("Please give write access to the <b>".$extractedsystem['ConfigFile']."</b> " .
 					"file for the installer to configure your website! You can remove " .
 					"the write access once the installation process has been completed."),
 				'error');
-			
+
 			$this->error = 2;
 			return false;
 		}
-		
+
 		if (!sql::connect($this->sqlHost, $this->sqlUser, $this->sqlPassword)) {
 			tooltip::display(
 				sprintf(
@@ -4971,19 +5075,19 @@ class installer {
 					$this->sqlHost,
 					$this->sqlUser),
 				'error');
-			
+
 			$this->error = 4;
 			return false;
 		}
-			
+
 		if (!sql::selectDB($this->sqlDB)) {
 			sql::run(
 				" CREATE DATABASE `".$this->sqlDB."` " .
 				" DEFAULT CHARACTER SET utf8 " .
 				" COLLATE utf8_general_ci");
-			
+
 			$sqlerror = sql::error();
-			
+
 			if ($sqlerror) {
 				tooltip::display(
 					sprintf(
@@ -4995,28 +5099,28 @@ class installer {
 						$this->sqlUser,
 						$sqlerror),
 					'error');
-			
+
 				$this->error = 4;
 				return false;
 			}
-			
+
 			sql::selectDB($this->sqlDB);
 		}
-		
+
 		if ($this->sqlPrefix) {
 			$prefixedtables = array();
-			
+
 			foreach($this->sqlTables as $table)
 				$prefixedtables[] = $this->sqlPrefix.'_'.$table;
-				
+
 			$this->sqlTables = $prefixedtables;
 		}
-		
+
 		$tablesexist = sql::fetch(sql::run(
 			" SHOW TABLES " .
 			" WHERE `Tables_in_".$this->sqlDB."` IN " .
 			" ('".implode("', '", $this->sqlTables)."')"));
-		
+
 		if (!$this->installOverwriteSQL && $tablesexist) {
 			tooltip::display(
 				sprintf(
@@ -5029,11 +5133,11 @@ class installer {
 						"made to the existing database will also be overwritten."),
 					$this->sqlDB),
 				'error');
-			
+
 			$this->error = 7;
 			return false;
 		}
-		
+
 		if ($this->install == 'client') {
 			if (!is_dir($this->serverPath) || !is_file($this->serverPath.'config.inc.php')) {
 				tooltip::display(
@@ -5046,22 +5150,22 @@ class installer {
 							"package to this directory."),
 						$this->serverPath),
 					'error');
-				
+
 				$this->error = 5;
 				return false;
 			}
-			
+
 			tooltip::display(
 				"<span id='jcoreinstallerprocess'></span>",
 				'notification');
-			
+
 			if (!$extractedsystem) {
 				$packagefile = $this->download(
 					$this->downloadClientID, 'Downloading jCore Client');
-					
+
 				if (!$packagefile)
 					return false;
-				
+
 				if (!$this->decompress($packagefile, 'jCore Client')) {
 					tooltip::display(
 						__("Something went wrong while decompressing the package file. " .
@@ -5074,38 +5178,38 @@ class installer {
 							"Also you could just simply extract jCore manually and run " .
 							"the installer again."),
 						'error');
-					
+
 					$this->error = 6;
 					return false;
 				}
 			}
-			
+
 			if ($extractedsystem['SQLFile'])
 				$sqlqueries = files::get($this->installPath.$extractedsystem['SQLFile']);
-			
+
 			if (!$sqlqueries)
 				$sqlqueries = $this->download(
 					$this->downloadSQLID, 'Downloading jCore Client SQL', false);
-			
+
 			if (!$sqlqueries)
 				return false;
-				
+
 			if (!$this->runSQL($sqlqueries, 'jCore Client'))
 				return false;
-			
+
 			echo
 				"<script type='text/javascript'>" .
 					"jQuery('#jcoreinstallerprocess').append('" .
 							__("Updating config/template files...") .
 						"');" .
 				"</script>";
-						
+
 			url::flushDisplay();
-			
+
 			if ($fp = @fopen($this->installPath.'jcore.inc.php', 'r+')) {
 				$config = @fread($fp, @filesize($this->installPath.'jcore.inc.php'));
 				@fclose($fp);
-				
+
 				$config = str_replace(
 					'localhost', $this->sqlHost, $config);
 				$config = str_replace(
@@ -5122,45 +5226,45 @@ class installer {
 					'http://jcore.yourdomain.com/', $this->serverURL, $config);
 				$config = str_replace(
 					'/var/www/jcore/', $this->serverPath, $config);
-				
+
 				$config = preg_replace(
 					'/(SQL_PREFIX.*?)\'\'/', '\1\''.$this->sqlPrefix.'\'', $config);
-				
+
 				if (!$this->modRewrite())
 					$config = preg_replace(
 						'/(SEO_FRIENDLY_LINKS.*?,).*?\)/', '\1 false)', $config);
-				
+
 				if ($fp = @fopen($this->installPath.'jcore.inc.php', 'w')) {
 					@fwrite($fp, $config);
 					@fclose($fp);
 				}
 			}
-		
+
 			if ($fp = @fopen($this->installPath.'template/template.css', 'r+')) {
 				$css = @fread($fp, @filesize($this->installPath.'template/template.css'));
 				@fclose($fp);
-				
+
 				$css = str_replace(
 					'http://icons.jcore.net/', $this->serverURL.'lib/icons/', $css);
-				
+
 				if ($fp = @fopen($this->installPath.'template/template.css', 'w')) {
 					@fwrite($fp, $css);
 					@fclose($fp);
 				}
 			}
-		
+
 			echo
 				"<script type='text/javascript'>" .
 					"jQuery('#jcoreinstallerprocess').append('<b>" .
 							__("OK") .
 						"</b><br />');" .
 				"</script>";
-		
+
 			url::flushDisplay();
-			
+
 			if (!$this->keepPackages && $this->cleanupFiles)
 				$this->cleanup($this->cleanupFiles);
-			
+
 			tooltip::display(
 				sprintf(
 					__("<b>jCore Client successfully installed!</b><br /> " .
@@ -5169,21 +5273,21 @@ class installer {
 					$this->installURL,
 					$this->installURL),
 				'success');
-		
+
 			return true;
 		}
-		
+
 		tooltip::display(
 			"<span id='jcoreinstallerprocess'></span>",
 			'notification');
-		
+
 		if (!$extractedsystem) {
 			$packagefile = $this->download(
 				$this->downloadServerID, 'Downloading jCore Server');
-				
+
 			if (!$packagefile)
 				return false;
-			
+
 			if (!$this->decompress($packagefile, 'jCore Server')) {
 				tooltip::display(
 					__("Something went wrong while decompressing the package file. " .
@@ -5196,38 +5300,38 @@ class installer {
 						"Also you could just simply extract jCore manually and run " .
 						"the installer again."),
 					'error');
-				
+
 				$this->error = 6;
 				return false;
 			}
 		}
-		
+
 		if ($extractedsystem['SQLFile'])
 			$sqlqueries = files::get($this->installPath.$extractedsystem['SQLFile']);
-		
+
 		if (!$sqlqueries)
 			$sqlqueries = $this->download(
 				$this->downloadSQLID, 'Downloading jCore Server SQL', false);
-		
+
 		if (!$sqlqueries)
 			return false;
-		
+
 		if (!$this->runSQL($sqlqueries, 'jCore Server'))
 			return false;
-		
+
 		echo
 			"<script type='text/javascript'>" .
 				"jQuery('#jcoreinstallerprocess').append('" .
 						__("Updating config/template files...") .
 					"');" .
 			"</script>";
-						
+
 		url::flushDisplay();
-		
+
 		if ($fp = @fopen($this->installPath.'config.inc.php', 'r+')) {
 			$config = @fread($fp, @filesize($this->installPath.'config.inc.php'));
 			@fclose($fp);
-			
+
 			$config = str_replace(
 				'localhost', $this->sqlHost, $config);
 			$config = str_replace(
@@ -5240,58 +5344,58 @@ class installer {
 				'http://yourdomain.com/', $this->installURL, $config);
 			$config = str_replace(
 				'/home/yourdomain/public_html/', $this->installPath, $config);
-			
+
 			$config = preg_replace(
 				'/(SQL_PREFIX.*?)\'\'/', '\1\''.$this->sqlPrefix.'\'', $config);
-				
+
 			if (!$this->modRewrite())
 				$config = preg_replace(
 					'/(SEO_FRIENDLY_LINKS.*?,).*?\)/', '\1 false)', $config);
-			
+
 			if ($fp = @fopen($this->installPath.'config.inc.php', 'w')) {
 				@fwrite($fp, $config);
 				@fclose($fp);
 			}
 		}
-		
+
 		if ($fp = @fopen($this->installPath.'template/template.css', 'r+')) {
 			$css = @fread($fp, @filesize($this->installPath.'template/template.css'));
 			@fclose($fp);
-			
+
 			$css = str_replace(
 				'http://icons.jcore.net/', $this->installURL.'lib/icons/', $css);
-			
+
 			if ($fp = @fopen($this->installPath.'template/template.css', 'w')) {
 				@fwrite($fp, $css);
 				@fclose($fp);
 			}
 		}
-		
+
 		if ($fp = @fopen($this->installPath.'template/admin.css', 'r+')) {
 			$css = @fread($fp, @filesize($this->installPath.'template/admin.css'));
 			@fclose($fp);
-			
+
 			$css = str_replace(
 				'http://icons.jcore.net/', $this->installURL.'lib/icons/', $css);
-			
+
 			if ($fp = @fopen($this->installPath.'template/admin.css', 'w')) {
 				@fwrite($fp, $css);
 				@fclose($fp);
 			}
 		}
-		
+
 		echo
 			"<script type='text/javascript'>" .
 				"jQuery('#jcoreinstallerprocess').append('<b>" .
 						__("OK") .
 					"</b><br />');" .
 			"</script>";
-		
+
 		url::flushDisplay();
-		
+
 		if (!$this->keepPackages && $this->cleanupFiles)
 			$this->cleanup($this->cleanupFiles);
-		
+
 		tooltip::display(
 			sprintf(
 				__("<b>jCore Server successfully installed!</b><br /> " .
@@ -5306,17 +5410,17 @@ class installer {
 				$this->installPath,
 				$this->installURL),
 			'success');
-		
+
 		return true;
 	}
-	
+
 	function verify(&$form) {
 		if (!isset($_COOKIE['jCoreInstaller']) || isset($_GET['check']))
 			$this->check();
-		
+
 		if (!$form->verify())
 			return false;
-		
+
 		$this->install = $form->get('Install');
 		$this->installOverwrite = $form->get('InstallOverwrite');
 		$this->installOverwriteSQL = $form->get('InstallOverwriteSQL');
@@ -5330,65 +5434,65 @@ class installer {
 		$this->serverPath = rtrim($form->get('ServerPath'), '/').'/';
 		$this->serverURL = rtrim($form->get('ServerURL'), '/').'/';
 		$this->keepPackages = $form->get('KeepPackages');
-		
+
 		if (!$this->install())
 			return false;
-		
+
 		$form->setValue('InstallOverwrite', '');
 		$form->setValue('InstallOverwriteSQL', '');
-		
+
 		return true;
 	}
-	
+
 	function display($formdesign = true) {
 		echo
 			"<div class='installer'>";
-		
+
 		$extractedsystem = $this->checkExtractedSystem();
-		
+
 		$form = new form("jCore Installer");
 		$form->action = url::uri('ALL');
-		
+
 		$form->add(
 			'Install',
 			'Install',
 			FORM_INPUT_TYPE_RADIO,
 			true);
-		
+
 		if ($extractedsystem) {
 			$form->addValue(
 				strtolower($extractedsystem['Type']),
 				"<b>".$extractedsystem['Name']." ver-".$extractedsystem['Version']."</b> " .
 					"(found extracted at the Install Path)");
-			
+
 			$form->setValue(strtolower($extractedsystem['Type']));
 			$form->setStyle('display: none;');
-			
+
 		} else {
 			$form->addValue(
 				'server',
 				"<b>jCore Server</b> " .
 					"(install this if you're not sure what to choose)");
-			
+
 			$form->addValue(
 				'client',
 				"<b>jCore Client</b> " .
 					"(you will have to define jCore server's path)");
 		}
-		
+
 		$form->addAttributes(
 			"onclick=\"toggleClientSettings(this)\"");
-		
+
 		$form->add(
 			'Overwrite Existing',
 			'InstallOverwrite',
 			FORM_INPUT_TYPE_HIDDEN);
 		$form->setValueType(FORM_VALUE_TYPE_BOOL);
 		$form->setValue(0);
-		
+
 		$form->addAdditionalText(
 			__("(confirm to overwrite exising jCore system at the install path)"));
-		
+
 		$form->add(
 			'Install Path',
 			'InstallPath',
@@ -5396,10 +5500,10 @@ class installer {
 			true,
 			$this->installPath);
 		$form->setStyle('width: 500px;');
-		
+
 		$form->addAdditionalText(
 			__("(install jCore to)"));
-		
+
 		$form->add(
 			'Website URL',
 			'InstallURL',
@@ -5407,26 +5511,26 @@ class installer {
 			true,
 			$this->installURL);
 		$form->setStyle('width: 350px;');
-		
+
 		$form->addAdditionalText(
 			__("(the URL to access your new website)"));
-		
+
 		$form->add(
 			'Database / MySQL Settings',
 			null,
 			FORM_OPEN_FRAME_CONTAINER,
 			true);
-		
+
 		$form->add(
 			'Overwrite Existing',
 			'InstallOverwriteSQL',
 			FORM_INPUT_TYPE_HIDDEN);
 		$form->setValueType(FORM_VALUE_TYPE_BOOL);
 		$form->setValue(0);
-		
+
 		$form->addAdditionalText(
 			__("(confirm to overwrite exising jCore tables in the defined database)"));
-		
+
 		$form->add(
 			'MySQL Host',
 			'SQLHost',
@@ -5434,10 +5538,10 @@ class installer {
 			true,
 			$this->sqlHost);
 		$form->setStyle('width: 200px;');
-		
+
 		$form->addAdditionalText(
 			__("(in most situation localhost is just perfect)"));
-		
+
 		$form->add(
 			'Database',
 			'SQLDB',
@@ -5445,19 +5549,19 @@ class installer {
 			true,
 			$this->sqlDB);
 		$form->setStyle('width: 250px;');
-		
+
 		$form->addAdditionalText(
 			__("(installer will try to create this database automatically)"));
-		
+
 		$form->add(
 			'Table Prefix',
 			'SQLPrefix',
 			FORM_INPUT_TYPE_TEXT);
 		$form->setStyle('width: 100px;');
-		
+
 		$form->addAdditionalText(
 			__("(only if you want to use one DB for multiple sites, for e.g. client1, client2, ...)"));
-		
+
 		$form->add(
 			'MySQL User',
 			'SQLUser',
@@ -5465,24 +5569,24 @@ class installer {
 			true,
 			'root');
 		$form->setStyle('width: 150px;');
-		
+
 		$form->addAdditionalText(
 			__("(username to access MySQL on localhost)"));
-		
+
 		$form->add(
 			'Password',
 			'SQLPassword',
 			FORM_INPUT_TYPE_TEXT);
 		$form->setStyle('width: 150px;');
-		
+
 		$form->addAdditionalText(
 			__("(can be left empty but recommended to set)"));
-		
+
 		$form->add(
 			null,
 			null,
 			FORM_CLOSE_FRAME_CONTAINER);
-		
+
 		if (!$extractedsystem || $extractedsystem['Type'] == 'Client') {
 			$form->add(
 				'jCore Client Settings',
@@ -5491,7 +5595,7 @@ class installer {
 				($extractedsystem?
 					true:
 					false));
-			
+
 			$form->add(
 				'jCore Server Path',
 				'ServerPath',
@@ -5499,10 +5603,10 @@ class installer {
 				false,
 				$this->serverPath);
 			$form->setStyle('width: 350px;');
-			
+
 			$form->addAdditionalText(
 				__("(this should point to the jCore Server)"));
-			
+
 			$form->add(
 				'jCore Server URL',
 				'ServerURL',
@@ -5510,21 +5614,21 @@ class installer {
 				false,
 				$this->serverURL);
 			$form->setStyle('width: 250px;');
-			
+
 			$form->addAdditionalText(
 				__("(url to access jCore Server)"));
-			
+
 			$form->add(
 				null,
 				null,
 				FORM_CLOSE_FRAME_CONTAINER);
 		}
-		
+
 		$form->add(
 			'Additional Settings / Information',
 			null,
 			FORM_OPEN_FRAME_CONTAINER);
-		
+
 		$form->add(
 			'Keep Packages',
 			'KeepPackages',
@@ -5536,10 +5640,10 @@ class installer {
 				null:
 				true));
 		$form->setValueType(FORM_VALUE_TYPE_BOOL);
-		
+
 		$form->addAdditionalText(
 			__("(do not delete downloaded jCore packages after installation)"));
-		
+
 		$form->add(
 			"<ul>" .
 				"<li>" .
@@ -5569,24 +5673,24 @@ class installer {
 			"</ul>",
 			null,
 			FORM_STATIC_TEXT);
-		
+
 		$form->add(
 			null,
 			null,
 			FORM_CLOSE_FRAME_CONTAINER);
-		
+
 		$form->add(
 			'Install jCore',
 			'install',
 			FORM_INPUT_TYPE_SUBMIT);
-		
+
 		$form->add(
 			'Reset',
 			'reset',
 			FORM_INPUT_TYPE_RESET);
-		
+
 		$this->verify($form);
-		
+
 		if ($this->error == 3 || $form->get('InstallOverwrite')) {
 			$form->edit(
 				'InstallOverwrite',
@@ -5595,11 +5699,11 @@ class installer {
 				FORM_INPUT_TYPE_CHECKBOX,
 				true,
 				1);
-			
+
 			if ($this->error == 3)
 				$form->setElementKey('VerifyResult', 'InstallOverwrite', 1);
 		}
-		
+
 		if ($this->error == 7 || $form->get('InstallOverwriteSQL')) {
 			$form->edit(
 				'InstallOverwriteSQL',
@@ -5608,14 +5712,14 @@ class installer {
 				FORM_INPUT_TYPE_CHECKBOX,
 				true,
 				1);
-			
+
 			if ($this->error == 7)
 				$form->setElementKey('VerifyResult', 'InstallOverwriteSQL', 1);
 		}
-		
+
 		$form->display();
-		
-		echo 
+
+		echo
 			"</div>";	//installer
 	}
 }
@@ -5632,9 +5736,9 @@ class installer {
 <link rel="icon" type="image/png" href="<?php echo JCORE_URL; ?>template/images/favicon.png" />
 <style type='text/css'>
 /*
- * 
+ *
  * HTML Elements
- * 
+ *
  */
 
 
@@ -5733,9 +5837,9 @@ input:focus, select:focus, textarea:focus, .fc:focus {
 
 
 /*
- * 
+ *
  * Color classes
- * 
+ *
  */
 
 
@@ -5794,9 +5898,9 @@ input:focus, select:focus, textarea:focus, .fc:focus {
 
 
 /*
- * 
+ *
  * Globally used elements
- * 
+ *
  */
 
 
@@ -5847,13 +5951,13 @@ input:focus, select:focus, textarea:focus, .fc:focus {
 
 
 /*
- * 
+ *
  * Ajax Loading status
- * 
+ *
  */
 
 
- 
+
 .loading {
     background: #fbf7aa;
     color: black;
@@ -5877,9 +5981,9 @@ input:focus, select:focus, textarea:focus, .fc:focus {
 
 
 /*
- * 
+ *
  * Tooltip / notification element
- * 
+ *
  */
 
 
@@ -5944,9 +6048,9 @@ input:focus, select:focus, textarea:focus, .fc:focus {
 
 
 /*
- * 
+ *
  * Buttons
- * 
+ *
  */
 
 
@@ -6044,11 +6148,11 @@ input.button:hover {
 
 
 /*
- * 
+ *
  * Frame containers
- * 
+ *
  */
- 
+
 
 
 .fc {
@@ -6077,13 +6181,13 @@ input.button:hover {
 	zoom: 1;
 }
 
-.fc.expanded > .fc-title, 
+.fc.expanded > .fc-title,
 .fc-title.expanded
 {
 	background-image: url("http://icons.jcore.net/16/expanded-black.png");
 }
 
-.fc.colapsed > .fc-title, 
+.fc.colapsed > .fc-title,
 .fc-title.colapsed
 {
 	background-image: url("http://icons.jcore.net/16/colapsed-black.png");
@@ -6124,9 +6228,9 @@ input.button:hover {
 
 
 /*
- * 
- * Website forms to submit 
- * 
+ *
+ * Website forms to submit
+ *
  */
 
 
@@ -6252,9 +6356,9 @@ input.button:hover {
 
 
 /*
- * 
- * Tables with list elements 
- * 
+ *
+ * Tables with list elements
+ *
  */
 
 
@@ -6284,7 +6388,7 @@ input.button:hover {
 }
 
 .list tbody > tr:hover,
-.list tbody > tr.hilight 
+.list tbody > tr.hilight
 {
 	background: #fff;
 }
@@ -6306,9 +6410,9 @@ input.button:hover {
 
 
 /*
- * 
- * Progress bar 
- * 
+ *
+ * Progress bar
+ *
  */
 
 
@@ -6337,13 +6441,13 @@ input.button:hover {
 
 
 /*
- * 
- * Paging 
- * 
+ *
+ * Paging
+ *
  */
 
 
- 
+
 .paging {
 	clear: both;
 	margin: 10px 0;
@@ -6368,8 +6472,8 @@ input.button:hover {
 	text-decoration: none;
 }
 
-.pagenumber a:hover, 
-.pagenumber.pagenumber-selected a 
+.pagenumber a:hover,
+.pagenumber.pagenumber-selected a
 {
 	padding: 3px 9px;
 	background: url("http://jcore.net/template/images/buttonbluebg.jpg") repeat-x #50b1d4;
@@ -6382,9 +6486,9 @@ input.button:hover {
 
 
 /*
- * 
- * Calendar 
- * 
+ *
+ * Calendar
+ *
  */
 
 
@@ -6464,9 +6568,9 @@ input.button:hover {
 
 
 /*
- * 
- * Posts 
- * 
+ *
+ * Posts
+ *
  */
 
 
@@ -6548,9 +6652,9 @@ input.button:hover {
 
 
 /*
- * 
- * Comments for the contents and others 
- * 
+ *
+ * Comments for the contents and others
+ *
  */
 
 
@@ -6686,9 +6790,9 @@ input.button:hover {
 
 
 /*
- * 
- * Pictures 
- * 
+ *
+ * Pictures
+ *
  */
 
 
@@ -6715,9 +6819,9 @@ input.button:hover {
 
 
 /*
- * 
- * Videos 
- * 
+ *
+ * Videos
+ *
  */
 
 
@@ -6773,9 +6877,9 @@ input.button:hover {
 
 
 /*
- * 
- * Keywords 
- * 
+ *
+ * Keywords
+ *
  */
 
 
@@ -6796,9 +6900,9 @@ input.button:hover {
 
 
 /*
- * 
- * Attachments 
- * 
+ *
+ * Attachments
+ *
  */
 
 
@@ -6838,9 +6942,9 @@ input.button:hover {
 
 
 /*
- * 
+ *
  * Javascript calendar
- * 
+ *
  */
 
 
@@ -6938,9 +7042,9 @@ td.ui-datepicker-other-month {
 
 
 /*
- * 
- * Javascript Color Picker 
- * 
+ *
+ * Javascript Color Picker
+ *
  */
 
 
@@ -7039,9 +7143,9 @@ td.ui-datepicker-other-month {
 
 
 /*
- * 
- * Star rating 
- * 
+ *
+ * Star rating
+ *
  */
 
 
@@ -7231,9 +7335,9 @@ td.ui-datepicker-other-month {
 
 
 /*
- * 
- * Ads & Banners 
- * 
+ *
+ * Ads & Banners
+ *
  */
 
 
@@ -7243,27 +7347,27 @@ td.ui-datepicker-other-month {
 }
 
 
- 
+
 /*
- * 
- * Tipsy, a small tooltip 
- * 
+ *
+ * Tipsy, a small tooltip
+ *
  */
 
 
 
 .tipsy {
 	padding: 5px;
-	font-size: 10px; 
+	font-size: 10px;
 	position: absolute;
 	z-index: 99;
 }
 
-.tipsy-outer { 
-	padding: 5px 8px 4px 8px; 
-	background-color: black; 
-	color: #fff; 
-	max-width: 200px; 
+.tipsy-outer {
+	padding: 5px 8px 4px 8px;
+	background-color: black;
+	color: #fff;
+	max-width: 200px;
 	text-align: center;
 	word-wrap: break-word;
 	border-radius: 3px;
@@ -7311,13 +7415,13 @@ td.ui-datepicker-other-month {
 }
 
 .tipsy-n .tipsy-arrow {
-	top: 0; 
-	left: 50%; 
+	top: 0;
+	left: 50%;
 	margin-left: -4px;
 }
 
 .tipsy-nw .tipsy-arrow {
-	top: 0; 
+	top: 0;
 	left: 10px;
 }
 
@@ -7345,11 +7449,11 @@ td.ui-datepicker-other-month {
 }
 
 .tipsy-e .tipsy-arrow {
-	top: 50%; 
-	margin-top: -4px; 
-	right: 0; 
-	width: 5px; 
-	height: 9px; 
+	top: 50%;
+	margin-top: -4px;
+	right: 0;
+	width: 5px;
+	height: 9px;
 	background-position: top right;
 }
 
@@ -7416,7 +7520,7 @@ td.ui-datepicker-other-month {
 	margin: 0;
 }
 
-.tipsy .paging-text { 
+.tipsy .paging-text {
 	color: #777;
 }
 
@@ -7430,7 +7534,7 @@ td.ui-datepicker-other-month {
 }
 
 .tipsy .list tbody > tr:hover,
-.tipsy .list tbody > tr.hilight 
+.tipsy .list tbody > tr.hilight
 {
 	background: #000;
 }
@@ -7444,13 +7548,13 @@ td.ui-datepicker-other-month {
 
 
 /*
- * 
+ *
  * Lightbox for pictures preview
- * 
+ *
  */
- 
- 
- 
+
+
+
 #jquery-overlay {
 	position: fixed;
 	top: 0;
@@ -7470,8 +7574,8 @@ td.ui-datepicker-other-month {
 	line-height: 0;
 }
 
-#jquery-lightbox a img { 
-	border: none; 
+#jquery-lightbox a img {
+	border: none;
 }
 
 #lightbox-container-image-box {
@@ -7503,29 +7607,29 @@ td.ui-datepicker-other-month {
 	z-index: 10;
 }
 
-#lightbox-container-image-box > #lightbox-nav { 
-	left: 0; 
+#lightbox-container-image-box > #lightbox-nav {
+	left: 0;
 }
 
-#lightbox-nav a { 
+#lightbox-nav a {
 	outline: none;
 }
 
-#lightbox-nav-btnPrev, 
-#lightbox-nav-btnNext 
+#lightbox-nav-btnPrev,
+#lightbox-nav-btnNext
 {
 	width: 49%;
 	height: 100%;
 	display: block;
 }
 
-#lightbox-nav-btnPrev { 
-	left: 0; 
+#lightbox-nav-btnPrev {
+	left: 0;
 	float: left;
 }
 
-#lightbox-nav-btnNext { 
-	right: 0; 
+#lightbox-nav-btnNext {
+	right: 0;
 	float: right;
 }
 
@@ -7541,22 +7645,22 @@ td.ui-datepicker-other-month {
 }
 
 #lightbox-container-image-data {
-	padding: 0 64px 0 32px; 
-	color: #666; 
+	padding: 0 64px 0 32px;
+	color: #666;
 }
 
-#lightbox-image-details { 
+#lightbox-image-details {
 	text-align: left;
 }
-	
-#lightbox-image-details-caption { 
+
+#lightbox-image-details-caption {
 	font-weight: bold;
-	display: block; 
+	display: block;
 }
 
 #lightbox-image-details-currentNumber {
-	display: block; 
-	padding-bottom: 1.0em;	
+	display: block;
+	padding-bottom: 1.0em;
 }
 
 #lightbox-secNav-btnClose,
@@ -7567,7 +7671,7 @@ td.ui-datepicker-other-month {
 {
 	overflow: hidden;
 	width: 32px;
-	height: 32px; 
+	height: 32px;
 	margin-bottom: 9px;
 	float: right;
 }
@@ -7591,26 +7695,26 @@ td.ui-datepicker-other-month {
 #lightbox-secNav-btnSlideshow {
 	float: left;
 	background: url("http://icons.jcore.net/32/media-playback-start.png") no-repeat;
-	margin-right: 10px; 
+	margin-right: 10px;
 }
 
 #lightbox-secNav-btnSlideshow.pause {
 	background-image: url("http://icons.jcore.net/32/media-playback-pause.png");
 }
 
-#lightbox-nav-btnPrev { 
+#lightbox-nav-btnPrev {
 	background: url("http://icons.jcore.net/16/empty.gif") left 15% no-repeat;
 }
 
-#lightbox-nav-btnNext { 
+#lightbox-nav-btnNext {
 	background: url("http://icons.jcore.net/16/empty.gif") right 15% no-repeat;
 }
 
-#lightbox-nav-btnPrev:hover { 
+#lightbox-nav-btnPrev:hover {
 	background: url("http://icons.jcore.net/32/prevlabel.gif") left 15% no-repeat;
 }
 
-#lightbox-nav-btnNext:hover { 
+#lightbox-nav-btnNext:hover {
 	background: url("http://icons.jcore.net/32/nextlabel.gif") right 15% no-repeat;
 }
 
@@ -7627,27 +7731,27 @@ td.ui-datepicker-other-month {
 #requestanewpasswordform .text-entry {
 	width: 300px;
 }
- 
+
 #memberloginform #entrymember {
 	width: 250px;
 }
- 
+
 #memberloginform #entrypassword {
 	width: 200px;
 }
- 
+
 #quickloginform #entrymember,
-#quickloginform #entrypassword 
+#quickloginform #entrypassword
 {
 	width: 150px;
 }
- 
+
 
 
 /*
- * 
- * Website related elements 
- * 
+ *
+ * Website related elements
+ *
  */
 
 
@@ -7743,9 +7847,9 @@ td.ui-datepicker-other-month {
 
 
 /*
- * 
- * Main Menu and Side Menu 
- * 
+ *
+ * Main Menu and Side Menu
+ *
  */
 
 
@@ -7857,7 +7961,7 @@ td.ui-datepicker-other-month {
 	display: block;
 }
 </style>
-<script src='<?php echo JCORE_URL; ?>static.php?request=jquery&amp;installer-v<?php echo INSTALLER_VERSION; ?>' type='text/javascript'></script> 
+<script src='<?php echo JCORE_URL; ?>static.php?request=jquery&amp;installer-v<?php echo INSTALLER_VERSION; ?>' type='text/javascript'></script>
 <script type="text/javascript">
 <!--
 	function toggleClientSettings(install) {
@@ -7865,8 +7969,8 @@ td.ui-datepicker-other-month {
 			jQuery('.fc-client-settings a').click();
 			return;
 		}
-		
-		if (install.value == 'client' && !jQuery('.fc-client-settings, .fc-client-settings a').is('.expanded')) { 
+
+		if (install.value == 'client' && !jQuery('.fc-client-settings, .fc-client-settings a').is('.expanded')) {
 			jQuery('.fc-client-settings a').click();
 			return;
 		}
@@ -7880,53 +7984,53 @@ td.ui-datepicker-other-month {
 		<div id='header-menu'>
 			<ul id='main-menu'>
 				<li class='menu'>
-					<a href='<?php echo url::uri('ALL'); ?>?check=1'><span>Check for Updates</span></a> 
+					<a href='<?php echo url::uri('ALL'); ?>?check=1'><span>Check for Updates</span></a>
 				</li>
 				<li class='menu'>
-					<a href='http://jcore.net/help/installer' target='_blank'><span>Get Help</span></a> 
+					<a href='http://jcore.net/help/installer' target='_blank'><span>Get Help</span></a>
 				</li>
 				<li class='menu'>
-					<a href='http://jcore.net/contact' target='_blank'><span>Contact</span></a> 
+					<a href='http://jcore.net/contact' target='_blank'><span>Contact</span></a>
 				</li>
 				<li class='menu'>
-					<a href='http://jcore.net' target='_blank'><span>jCore.net</span></a> 
+					<a href='http://jcore.net' target='_blank'><span>jCore.net</span></a>
 				</li>
 			</ul>
 		</div>
 		<div id='header'>
 			<div class='jcore-versions'>
 				<span class='installer'>Installer ver. <?php echo INSTALLER_VERSION; ?></span><br />
-				<span class='jcore-version-server'>Server 
-				<?php 
-					if (isset($_COOKIE['jCoreInstaller']['Versions']['Server'])) 
-						echo $_COOKIE['jCoreInstaller']['Versions']['Server']; 
-					else 
-						echo "-.-"; 
+				<span class='jcore-version-server'>Server
+				<?php
+					if (isset($_COOKIE['jCoreInstaller']['Versions']['Server']))
+						echo $_COOKIE['jCoreInstaller']['Versions']['Server'];
+					else
+						echo "-.-";
 				?>
 				</span> -
-				<span class='jcore-version-client'>Client 
-				<?php 
-					if (isset($_COOKIE['jCoreInstaller']['Versions']['Client'])) 
-						echo $_COOKIE['jCoreInstaller']['Versions']['Client']; 
-					else 
-						echo "-.-"; 
+				<span class='jcore-version-client'>Client
+				<?php
+					if (isset($_COOKIE['jCoreInstaller']['Versions']['Client']))
+						echo $_COOKIE['jCoreInstaller']['Versions']['Client'];
+					else
+						echo "-.-";
 				?>
 				</span> -
-				<span class='jcore-version-installer'>Installer 
-				<?php 
-					if (isset($_COOKIE['jCoreInstaller']['Versions']['Installer'])) 
-						echo $_COOKIE['jCoreInstaller']['Versions']['Installer']; 
-					else 
-						echo "-.-"; 
+				<span class='jcore-version-installer'>Installer
+				<?php
+					if (isset($_COOKIE['jCoreInstaller']['Versions']['Installer']))
+						echo $_COOKIE['jCoreInstaller']['Versions']['Installer'];
+					else
+						echo "-.-";
 				?>
 				</span>
 			</div>
-			<div class='logo'> 
-				<a href='<?php echo url::uri('ALL'); ?>'></a> 
-				<div class='slogan'></div> 
-			</div> 
-			<div class='header-image'> 
-				<a class='tipsy' href='http://sea-weed.deviantart.com/' target='_blank' title='Picture Copyright &copy; by Iliana (~sea-weed)'>&copy;</a> 
+			<div class='logo'>
+				<a href='<?php echo url::uri('ALL'); ?>'></a>
+				<div class='slogan'></div>
+			</div>
+			<div class='header-image'>
+				<a class='tipsy' href='http://sea-weed.deviantart.com/' target='_blank' title='Picture Copyright &copy; by Iliana (~sea-weed)'>&copy;</a>
 			</div>
 		</div>
 		<div id='content'>
@@ -7943,9 +8047,9 @@ td.ui-datepicker-other-month {
 	</div>
 </div>
 <div id='footer'>
-	<div class='footercontent'> 
+	<div class='footercontent'>
 		<div class='copyright'>
-			Copyright &copy; <?php echo date('Y'); ?> by Istvan Petres<br /> 
+			Copyright &copy; <?php echo date('Y'); ?> by Istvan Petres<br />
 			All Rights Reserved
 		</div>
 	</div>

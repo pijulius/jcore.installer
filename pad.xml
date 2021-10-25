@@ -5,7 +5,7 @@
 		<MASTER_PAD_INFO>Portable Application Description, or PAD for short, is a data set that is used by shareware authors to disseminate information to anyone interested in their software products. To find out more go to http://www.asp-shareware.org/pad</MASTER_PAD_INFO>
 	</MASTER_PAD_VERSION_INFO>
 	<Company_Info>
-		<Company_Name>Istvan Petres PFA</Company_Name>
+		<Company_Name>Istvan Petres</Company_Name>
 		<Address_1></Address_1>
 		<Address_2 />
 		<City_Town></City_Town>
@@ -33,10 +33,10 @@
 	</Company_Info>
 	<Program_Info>
 		<Program_Name>jCore - the Webmaster's Multisite CMS</Program_Name>
-		<Program_Version>0.9</Program_Version>
-		<Program_Release_Month>06</Program_Release_Month>
-		<Program_Release_Day>29</Program_Release_Day>
-		<Program_Release_Year>2011</Program_Release_Year>
+		<Program_Version>1.0</Program_Version>
+		<Program_Release_Month>10</Program_Release_Month>
+		<Program_Release_Day>30</Program_Release_Day>
+		<Program_Release_Year>2020</Program_Release_Year>
 		<Program_Cost_Dollars />
 		<Program_Cost_Other_Code />
 		<Program_Cost_Other />
@@ -66,16 +66,17 @@
 		</Expire_Info>
 	</Program_Info>
 	<Program_Versions>
-		<Server>0.9</Server>
-		<Client>0.9</Client>
-		<Installer>0.9</Installer>
+		<Server>1.0</Server>
+		<Client>1.0</Client>
+		<Installer>1.0</Installer>
 	</Program_Versions>
 	<Program_Downloads>
-		<Server>123</Server>
-		<Client>122</Client>
+		<Server>140</Server>
+		<Client>142</Client>
 		<Installer>80</Installer>
-		<SQL>124</SQL>
+		<SQL>141</SQL>
 		<SQLArchive>
+			<v09>133</v09>
 			<v08>110</v08>
 			<v071>95</v071>
 			<v061>81</v061>
@@ -87,6 +88,14 @@
 		</SQLArchive>
 	</Program_Downloads>
 	<Program_Updates>
+		<Update>
+			<Ver>1.0</Ver>
+			<Description>Added API access, jQuery extensibility, Comments at glace, Security fixes, PHP 7 compatibility and more.</Description>
+			<Server>145</Server>
+			<Client></Client>
+			<SQL>147</SQL>
+			<URL>http://jcore.net/news/jcore-10-released</URL>
+		</Update>
 		<Update>
 			<Ver>0.9</Ver>
 			<Description>Added new Module and Update manager, multiple layouts support for Templates, separated Menu items and Pages, availability to limit Pages/Blocks to user groups, possibility to add Posts to blocks without having to assign them to pages, CSV export for dynamic form's data, IPv6 compatibility, Mobile browser detection for blocks, Coupon codes for shopping cart and a lot more.</Description>
